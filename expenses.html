@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Έξοδα" />
+<title>Προσωπικά Έξοδα</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f5; --bg3: #efefef;
+    --text: #111111; --text2: #555555; --text3: #999999;
+    --border: #e0e0e0; --border2: #cccccc;
+    --info-bg: #e8f0fe; --info-text: #1a56c4; --info-border: #b3caf7;
+    --danger-bg: #fdecea; --danger-text: #c0392b; --danger-border: #f5b7b1;
+    --success-bg: #eafaf1; --success-text: #1e8449; --success-border: #a9dfbf;
+    --warn-bg: #fef9e7; --warn-text: #7d5a00; --warn-border: #f9e79f;
+    --radius: 10px; --radius-sm: 7px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1e; --bg2: #2c2c2e; --bg3: #3a3a3c;
+      --text: #f2f2f7; --text2: #aeaeb2; --text3: #636366;
+      --border: #3a3a3c; --border2: #48484a;
+      --info-bg: #1a2a4a; --info-text: #6fa3ef; --info-border: #2a4a7a;
+      --danger-bg: #3a1a1a; --danger-text: #f07070; --danger-border: #6a2a2a;
+      --success-bg: #1a3a2a; --success-text: #5dbf85; --success-border: #2a6a4a;
+      --warn-bg: #2a2000; --warn-text: #e0b84a; --warn-border: #5a4000;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); min-height: 100vh; }
+  .app { max-width: 480px; margin: 0 auto; padding: 0 0 80px; }
+  .app-header { background: var(--bg); border-bottom: 0.5px solid var(--border); padding: 16px 16px 0; position: sticky; top: 0; z-index: 10; }
+  .app-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .total-pill { font-size: 13px; background: var(--danger-bg); color: var(--danger-text); border: 0.5px solid var(--danger-border); padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+  .tabs { display: flex; overflow-x: auto; }
+  .tab { flex: 1; min-width: 80px; padding: 10px 6px; font-size: 13px; font-weight: 500; border: none; background: transparent; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+  .tab.active { color: var(--info-text); border-bottom: 2px solid var(--info-text); }
+  .page { display: none; padding: 16px; }
+  .page.active { display: block; }
+  .add-form { background: var(--bg); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 14px; margin-bottom: 14px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 3px; }
+  label { font-size: 11px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+  input, select, textarea {
+    width: 100%; font-size: 15px; padding: 9px 10px;
+    border: 0.5px solid var(--border2); border-radius: var(--radius-sm);
+    background: var(--bg2); color: var(--text);
+    -webkit-appearance: none; appearance: none; outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--info-text); }
+  select:disabled { opacity: 0.4; }
+  textarea { resize: none; height: 52px; font-family: inherit; }
+  .new-sub-row { display: flex; gap: 6px; margin-top: 6px; }
+  .new-sub-row input { flex: 1; font-size: 13px; padding: 7px 9px; }
+  .btn-xs { font-size: 12px; padding: 7px 12px; border-radius: var(--radius-sm); cursor: pointer; border: 0.5px solid var(--info-border); background: var(--info-bg); color: var(--info-text); font-weight: 600; white-space: nowrap; }
+  .btn-xs:active { opacity: 0.8; }
+  .btn-add { width: 100%; margin-top: 10px; font-size: 15px; font-weight: 600; background: var(--info-bg); color: var(--info-text); border: 0.5px solid var(--info-border); padding: 11px; border-radius: var(--radius-sm); cursor: pointer; }
+  .btn-add:active { opacity: 0.8; }
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; }
+  .filter-bar select { flex: 1; font-size: 13px; padding: 7px 8px; }
+  .entry { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; }
+  .entry-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2px; }
+  .entry-name { font-size: 16px; font-weight: 600; color: var(--text); }
+  .entry-amount { font-size: 16px; font-weight: 700; color: var(--danger-text); }
+  .entry-cat { font-size: 11px; color: var(--info-text); background: var(--info-bg); border: 0.5px solid var(--info-border); padding: 1px 7px; border-radius: 20px; display: inline-block; margin-bottom: 4px; }
+  .entry-meta { font-size: 12px; color: var(--text3); margin-bottom: 10px; }
+  .entry-actions { display: flex; gap: 7px; }
+  .btn-sm { font-size: 13px; padding: 6px 12px; border-radius: var(--radius-sm); cursor: pointer; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); font-weight: 500; }
+  .btn-sm:active { opacity: 0.7; }
+  .btn-del { color: var(--danger-text); border-color: var(--danger-border); background: var(--danger-bg); }
+  .empty { text-align: center; color: var(--text3); font-size: 14px; padding: 3rem 0; }
+  /* Report */
+  .report-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .stat-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+  .stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 500; }
+  .stat-value { font-size: 22px; font-weight: 700; color: var(--text); }
+  .stat-value.danger { color: var(--danger-text); }
+  .chart-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 14px; }
+  .chart-title { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .donut-wrap { display: flex; align-items: center; gap: 16px; }
+  .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-pct { margin-left: auto; font-weight: 600; color: var(--text); }
+  .bar-chart { display: flex; flex-direction: column; gap: 10px; }
+  .bar-item { display: flex; flex-direction: column; gap: 3px; }
+  .bar-label-row { display: flex; justify-content: space-between; font-size: 12px; }
+  .bar-label { color: var(--text2); }
+  .bar-val { font-weight: 600; color: var(--danger-text); }
+  .bar-track { background: var(--bg3); border-radius: 4px; height: 8px; }
+  .bar-fill { height: 8px; border-radius: 4px; }
+  /* cat breakdown */
+  .cat-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; }
+  .cat-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+  .cat-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .cat-amount { font-size: 15px; font-weight: 700; color: var(--danger-text); }
+  .cat-sub { font-size: 12px; color: var(--text3); margin-bottom: 6px; }
+  .cat-rows { border-top: 0.5px solid var(--border); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .cat-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); }
+  .cat-row .row-amount { font-weight: 600; color: var(--danger-text); }
+  /* Categories tab */
+  .sec-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin: 14px 0 8px; }
+  .cat-manage-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+  .cat-manage-header { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; cursor: pointer; }
+  .cat-manage-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .cat-manage-count { font-size: 12px; color: var(--text3); }
+  .cat-manage-body { border-top: 0.5px solid var(--border); padding: 10px 14px; display: none; }
+  .cat-manage-body.open { display: block; }
+  .sub-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; border-bottom: 0.5px solid var(--border); }
+  .sub-row:last-of-type { border-bottom: none; }
+  .sub-name { font-size: 14px; color: var(--text2); }
+  .sub-actions { display: flex; gap: 5px; }
+  .btn-icon { font-size: 12px; padding: 3px 8px; border-radius: 5px; border: 0.5px solid var(--border2); background: transparent; color: var(--text3); cursor: pointer; }
+  .btn-icon.del { color: var(--danger-text); border-color: var(--danger-border); background: var(--danger-bg); }
+  .btn-icon.ren { color: var(--info-text); border-color: var(--info-border); background: var(--info-bg); }
+  .add-sub-row { display: flex; gap: 6px; margin-top: 10px; }
+  .add-sub-row input { flex: 1; font-size: 13px; padding: 7px 9px; }
+  .rename-input { font-size: 13px; padding: 5px 8px; border: 0.5px solid var(--info-border); border-radius: 5px; background: var(--bg2); color: var(--text); outline: none; width: 100%; margin-bottom: 6px; }
+  .rename-actions { display: flex; gap: 6px; margin-bottom: 8px; }
+  .btn-save { font-size: 12px; padding: 5px 12px; border-radius: 5px; border: 0.5px solid var(--success-border); background: var(--success-bg); color: var(--success-text); cursor: pointer; font-weight: 600; }
+  .btn-cancel { font-size: 12px; padding: 5px 12px; border-radius: 5px; border: 0.5px solid var(--border2); background: transparent; color: var(--text3); cursor: pointer; }
+  .add-cat-form { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 8px; }
+  .add-cat-row { display: flex; gap: 8px; }
+  .add-cat-row input { flex: 1; font-size: 14px; padding: 9px 10px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="app-header">
+    <div class="app-title">Έξοδα <span class="total-pill" id="total-badge">€0.00</span></div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('entries',this)">📋 Καταχώρηση</button>
+      <button class="tab" onclick="switchTab('report',this)">📊 Αναφορά</button>
+      <button class="tab" onclick="switchTab('cats',this)">📂 Κατηγορίες</button>
+    </div>
+  </div>
+
+  <!-- ΚΑΤΑΧΩΡΗΣΗ -->
+  <div class="page active" id="page-entries">
+    <div class="add-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Κατηγορία</label>
+          <select id="inp-cat" onchange="onCatChange()">
+            <option value="">— Επίλεξε —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Υποκατηγορία</label>
+          <select id="inp-subcat" disabled>
+            <option value="">— Επίλεξε κατ. —</option>
+          </select>
+        </div>
+      </div>
+      <div id="new-sub-wrap" style="display:none" class="form-row full">
+        <div class="form-group">
+          <label>Νέα υποκατηγορία</label>
+          <div class="new-sub-row">
+            <input type="text" id="new-sub-inp" placeholder="π.χ. Netflix" autocomplete="off" />
+            <button class="btn-xs" onclick="addSubFromForm()">＋ Αποθήκευση</button>
+            <button class="btn-xs" style="background:var(--bg2);color:var(--text3);border-color:var(--border2)" onclick="cancelNewSub()">✕</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Περιγραφή</label>
+          <input type="text" id="inp-desc" placeholder="προαιρετικά..." autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label>Ποσό (€)</label>
+          <input type="number" id="inp-amount" placeholder="0.00" min="0" step="0.01" inputmode="decimal" />
+        </div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group">
+          <label>Ημερομηνία</label>
+          <input type="date" id="inp-date" />
+        </div>
+        <div class="form-group">
+          <label>Μήνας</label>
+          <select id="inp-month">
+            <option value="">—</option>
+            <option>Ιανουάριος</option><option>Φεβρουάριος</option><option>Μάρτιος</option>
+            <option>Απρίλιος</option><option>Μάιος</option><option>Ιούνιος</option>
+            <option>Ιούλιος</option><option>Αύγουστος</option><option>Σεπτέμβριος</option>
+            <option>Οκτώβριος</option><option>Νοέμβριος</option><option>Δεκέμβριος</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Έτος</label>
+          <input type="number" id="inp-year" placeholder="2026" min="2020" max="2099" inputmode="numeric" />
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Σημείωση</label>
+          <textarea id="inp-note" placeholder="προαιρετικά..."></textarea>
+        </div>
+      </div>
+      <button class="btn-add" onclick="addEntry()">＋ Προσθήκη Εξόδου</button>
+    </div>
+    <div class="filter-bar">
+      <select id="flt-month" onchange="render()">
+        <option value="">Όλοι οι μήνες</option>
+        <option>Ιανουάριος</option><option>Φεβρουάριος</option><option>Μάρτιος</option>
+        <option>Απρίλιος</option><option>Μάιος</option><option>Ιούνιος</option>
+        <option>Ιούλιος</option><option>Αύγουστος</option><option>Σεπτέμβριος</option>
+        <option>Οκτώβριος</option><option>Νοέμβριος</option><option>Δεκέμβριος</option>
+      </select>
+      <select id="flt-year" onchange="render()"><option value="">Όλα τα έτη</option></select>
+      <select id="flt-cat" onchange="render()"><option value="">Όλες οι κατηγορίες</option></select>
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <!-- ΑΝΑΦΟΡΑ -->
+  <div class="page" id="page-report">
+    <div class="filter-bar">
+      <select id="r-flt-month" onchange="renderReport()">
+        <option value="">Όλοι οι μήνες</option>
+        <option>Ιανουάριος</option><option>Φεβρουάριος</option><option>Μάρτιος</option>
+        <option>Απρίλιος</option><option>Μάιος</option><option>Ιούνιος</option>
+        <option>Ιούλιος</option><option>Αύγουστος</option><option>Σεπτέμβριος</option>
+        <option>Οκτώβριος</option><option>Νοέμβριος</option><option>Δεκέμβριος</option>
+      </select>
+      <select id="r-flt-year" onchange="renderReport()"><option value="">Όλα τα έτη</option></select>
+    </div>
+    <div class="report-summary">
+      <div class="stat-card"><div class="stat-label">Σύνολο εξόδων</div><div class="stat-value danger" id="r-total">€0.00</div></div>
+      <div class="stat-card"><div class="stat-label">Εγγραφές</div><div class="stat-value" id="r-count">0</div></div>
+      <div class="stat-card"><div class="stat-label">Κατηγορίες</div><div class="stat-value" id="r-cats">0</div></div>
+      <div class="stat-card"><div class="stat-label">Μέσο / εγγραφή</div><div class="stat-value" id="r-avg">€0.00</div></div>
+    </div>
+    <!-- Donut -->
+    <div class="chart-card">
+      <div class="chart-title">Κατανομή ανά κατηγορία</div>
+      <div class="donut-wrap">
+        <canvas id="donut-canvas" width="140" height="140" style="flex-shrink:0"></canvas>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+    <!-- Bar -->
+    <div class="chart-card">
+      <div class="chart-title">Έξοδα ανά κατηγορία</div>
+      <div class="bar-chart" id="bar-chart"></div>
+    </div>
+    <!-- Detail -->
+    <div id="report-list"></div>
+  </div>
+
+  <!-- ΚΑΤΗΓΟΡΙΕΣ -->
+  <div class="page" id="page-cats">
+    <div class="sec-title">Νέα κατηγορία</div>
+    <div class="add-cat-form">
+      <div class="add-cat-row">
+        <input type="text" id="new-cat-inp" placeholder="π.χ. Υγεία" autocomplete="off" />
+        <button class="btn-xs" onclick="addCategory()">＋ Προσθήκη</button>
+      </div>
+    </div>
+    <div class="sec-title">Διαχείριση κατηγοριών</div>
+    <div id="cats-list"></div>
+  </div>
+</div>
+
+<script>
+const PALETTE = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#ec4899','#84cc16','#6366f1'];
+
+const DEFAULT_CATS = {
+  'Μεταφορά':           ['Gas','Parking','Car Wash','Άλλο'],
+  'Τρόφιμα':            ['Food Market (ΑΒ)','Delivery','Restaurants','Friends & Family','Άλλο'],
+  'Προσωπική Φροντίδα': ['Medical Expenses','Barber','Clothing','Gym','Cosmote Bill','Iqos & Vape','Coffee Take away','Άλλο'],
+  'Δάνεια / Συνδρομές': ['Alba Payment','Eurobank Credit Card','NBG Credit Card','Spotify','ChatGPT','efood pro','Apple iCloud','Άλλο'],
+  'Επενδύσεις':         ['Interactive Brokers','Personal Savings','Άλλο'],
+  'Δώρα':               ['Birthday Gifts','Other Gifts','Άλλο'],
+  'Ψυχαγωγία':          ['Cinema','Theater','Concerts','Άλλο'],
+  'Φόροι':              ['National','Άλλο'],
+  'Ταξίδια':            ['Αεροπορικά','Ξενοδοχείο','Ενοικίαση Αυτοκινήτου','Τρένο / Λεωφορείο','Εστιατόρια Εξωτερικού','Άλλο'],
+  'Άλλο':               ['Άλλο']
+};
+
+let entries = [];
+let cats = {};
+
+try { entries = JSON.parse(localStorage.getItem('expenses_v3') || '[]'); } catch(e) { entries = []; }
+try {
+  const sc = localStorage.getItem('expenses_cats_v3');
+  cats = sc ? JSON.parse(sc) : JSON.parse(JSON.stringify(DEFAULT_CATS));
+} catch(e) { cats = JSON.parse(JSON.stringify(DEFAULT_CATS)); }
+
+function save() { try { localStorage.setItem('expenses_v3', JSON.stringify(entries)); } catch(e) {} }
+function saveCats() { try { localStorage.setItem('expenses_cats_v3', JSON.stringify(cats)); } catch(e) {} }
+
+const now = new Date();
+document.getElementById('inp-date').value = now.toISOString().slice(0,10);
+document.getElementById('inp-year').value = now.getFullYear();
+document.getElementById('inp-month').selectedIndex = now.getMonth() + 1;
+
+function fmt(n) { return '€' + parseFloat(n).toFixed(2); }
+
+function catColor(i) { return PALETTE[i % PALETTE.length]; }
+
+/* ---- DROPDOWNS ---- */
+function populateCatDropdowns() {
+  const keys = Object.keys(cats);
+  const el = document.getElementById('inp-cat');
+  const v = el.value;
+  el.innerHTML = '<option value="">— Επίλεξε —</option>' + keys.map(c=>`<option${c===v?' selected':''}>${c}</option>`).join('');
+  const flt = document.getElementById('flt-cat');
+  const fv = flt.value;
+  flt.innerHTML = '<option value="">Όλες οι κατηγορίες</option>' + keys.map(c=>`<option${c===fv?' selected':''}>${c}</option>`).join('');
+}
+
+function populateYearDropdowns() {
+  const years = [...new Set(entries.map(e=>e.year).filter(Boolean))].sort((a,b)=>b-a);
+  ['flt-year','r-flt-year'].forEach(id=>{
+    const el = document.getElementById(id); if(!el) return;
+    const v = el.value;
+    el.innerHTML = '<option value="">Όλα τα έτη</option>' + years.map(y=>`<option${String(y)===String(v)?' selected':''}>${y}</option>`).join('');
+  });
+}
+
+function onCatChange() {
+  const cat = document.getElementById('inp-cat').value;
+  const subEl = document.getElementById('inp-subcat');
+  document.getElementById('new-sub-wrap').style.display = 'none';
+  document.getElementById('new-sub-inp').value = '';
+  if (!cat) { subEl.innerHTML = '<option value="">— Επίλεξε κατ. —</option>'; subEl.disabled = true; return; }
+  const subs = cats[cat] || [];
+  subEl.innerHTML = '<option value="">— Επίλεξε —</option>' +
+    subs.map(s=>`<option>${s}</option>`).join('') +
+    '<option value="__new__">＋ Νέα υποκατηγορία…</option>';
+  subEl.disabled = false;
+  subEl.onchange = onSubChange;
+}
+
+function onSubChange() {
+  const val = document.getElementById('inp-subcat').value;
+  document.getElementById('new-sub-wrap').style.display = val === '__new__' ? 'block' : 'none';
+  if (val === '__new__') setTimeout(()=>document.getElementById('new-sub-inp').focus(), 50);
+}
+
+function addSubFromForm() {
+  const cat = document.getElementById('inp-cat').value;
+  const name = document.getElementById('new-sub-inp').value.trim();
+  if (!cat || !name) return;
+  if (!cats[cat]) cats[cat] = [];
+  if (!cats[cat].includes(name)) {
+    const idx = cats[cat].indexOf('Άλλο');
+    if (idx >= 0) cats[cat].splice(idx, 0, name);
+    else cats[cat].push(name);
+    saveCats();
+  }
+  const subEl = document.getElementById('inp-subcat');
+  const subs = cats[cat];
+  subEl.innerHTML = '<option value="">— Επίλεξε —</option>' +
+    subs.map(s=>`<option${s===name?' selected':''}>${s}</option>`).join('') +
+    '<option value="__new__">＋ Νέα υποκατηγορία…</option>';
+  subEl.value = name;
+  document.getElementById('new-sub-wrap').style.display = 'none';
+  document.getElementById('new-sub-inp').value = '';
+}
+
+function cancelNewSub() {
+  document.getElementById('new-sub-wrap').style.display = 'none';
+  document.getElementById('new-sub-inp').value = '';
+  document.getElementById('inp-subcat').value = '';
+}
+
+/* ---- ENTRIES ---- */
+function addEntry() {
+  const cat = document.getElementById('inp-cat').value;
+  const subcat = document.getElementById('inp-subcat').value;
+  const amount = parseFloat(document.getElementById('inp-amount').value);
+  if (!cat || !subcat || subcat === '__new__' || isNaN(amount) || amount <= 0) {
+    alert('Συμπλήρωσε κατηγορία, υποκατηγορία και ποσό.'); return;
+  }
+  entries.unshift({
+    id: Date.now(), cat, subcat,
+    desc: document.getElementById('inp-desc').value.trim(),
+    amount,
+    date: document.getElementById('inp-date').value,
+    month: document.getElementById('inp-month').value,
+    year: document.getElementById('inp-year').value,
+    note: document.getElementById('inp-note').value.trim()
+  });
+  save(); populateYearDropdowns(); render();
+  document.getElementById('inp-cat').value = '';
+  const subEl = document.getElementById('inp-subcat');
+  subEl.innerHTML = '<option value="">— Επίλεξε κατ. —</option>';
+  subEl.disabled = true;
+  document.getElementById('new-sub-wrap').style.display = 'none';
+  document.getElementById('inp-desc').value = '';
+  document.getElementById('inp-amount').value = '';
+  document.getElementById('inp-note').value = '';
+}
+
+function deleteEntry(id) {
+  if (!confirm('Να διαγραφεί η εγγραφή;')) return;
+  entries = entries.filter(x=>x.id!==id);
+  save(); populateYearDropdowns(); render();
+}
+
+function getFiltered(mId, yId, cId) {
+  const m = document.getElementById(mId)?.value||'';
+  const y = document.getElementById(yId)?.value||'';
+  const c = cId ? (document.getElementById(cId)?.value||'') : '';
+  return entries.filter(e=>(!m||e.month===m)&&(!y||String(e.year)===String(y))&&(!c||e.cat===c));
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('page-'+tab).classList.add('active');
+  if (tab==='report') renderReport();
+  if (tab==='cats') renderCats();
+}
+
+/* ---- RENDER ENTRIES ---- */
+function render() {
+  populateCatDropdowns();
+  document.getElementById('total-badge').textContent = fmt(entries.reduce((s,e)=>s+e.amount,0));
+  const visible = getFiltered('flt-month','flt-year','flt-cat');
+  const list = document.getElementById('list');
+  if (!visible.length) { list.innerHTML='<div class="empty">Δεν υπάρχουν εγγραφές.</div>'; return; }
+  list.innerHTML = visible.map(e=>{
+    const title = e.desc||e.subcat;
+    const meta = [e.date, e.month&&e.year?e.month+' '+e.year:(e.month||e.year), e.note].filter(Boolean).join(' · ');
+    return `<div class="entry">
+      <div class="entry-top"><span class="entry-name">${title}</span><span class="entry-amount">${fmt(e.amount)}</span></div>
+      <div style="margin-bottom:4px"><span class="entry-cat">${e.cat} › ${e.subcat}</span></div>
+      <div class="entry-meta">${meta||'—'}</div>
+      <div class="entry-actions"><button class="btn-sm btn-del" onclick="deleteEntry(${e.id})">✕ Διαγραφή</button></div>
+    </div>`;
+  }).join('');
+}
+
+/* ---- RENDER REPORT ---- */
+function renderReport() {
+  const visible = getFiltered('r-flt-month','r-flt-year','');
+  const total = visible.reduce((s,e)=>s+e.amount,0);
+  document.getElementById('r-total').textContent = fmt(total);
+  document.getElementById('r-count').textContent = visible.length;
+  document.getElementById('r-avg').textContent = fmt(visible.length ? total/visible.length : 0);
+
+  const byCat = {};
+  visible.forEach(e=>{ if(!byCat[e.cat]) byCat[e.cat]=[]; byCat[e.cat].push(e); });
+  const catKeys = Object.keys(byCat);
+  document.getElementById('r-cats').textContent = catKeys.length;
+
+  const sorted = Object.entries(byCat).sort((a,b)=>b[1].reduce((s,e)=>s+e.amount,0)-a[1].reduce((s,e)=>s+e.amount,0));
+
+  /* DONUT */
+  const canvas = document.getElementById('donut-canvas');
+  const ctx = canvas.getContext('2d');
+  const cx=70, cy=70, r=60, ri=36;
+  ctx.clearRect(0,0,140,140);
+  if (sorted.length) {
+    let angle = -Math.PI/2;
+    sorted.forEach(([cat,ents],i)=>{
+      const amt = ents.reduce((s,e)=>s+e.amount,0);
+      const slice = total>0 ? (amt/total)*2*Math.PI : 0;
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,r,angle,angle+slice);
+      ctx.closePath(); ctx.fillStyle=catColor(i); ctx.fill();
+      angle+=slice;
+    });
+    ctx.beginPath(); ctx.arc(cx,cy,ri,0,2*Math.PI); ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()||'#fff'; ctx.fill();
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text').trim()||'#111';
+    ctx.font='bold 13px -apple-system,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(fmt(total),cx,cy);
+  } else {
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI); ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=24; ctx.stroke();
+  }
+
+  /* DONUT LEGEND */
+  document.getElementById('donut-legend').innerHTML = sorted.map(([cat,ents],i)=>{
+    const amt = ents.reduce((s,e)=>s+e.amount,0);
+    const pct = total>0?(amt/total*100):0;
+    return `<div class="legend-item">
+      <div class="legend-dot" style="background:${catColor(i)}"></div>
+      <span>${cat}</span>
+      <span class="legend-pct">${pct.toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+
+  /* BAR CHART */
+  const maxAmt = sorted.length ? sorted[0][1].reduce((s,e)=>s+e.amount,0) : 1;
+  document.getElementById('bar-chart').innerHTML = sorted.map(([cat,ents],i)=>{
+    const amt = ents.reduce((s,e)=>s+e.amount,0);
+    const pct = maxAmt>0?(amt/maxAmt*100):0;
+    return `<div class="bar-item">
+      <div class="bar-label-row"><span class="bar-label">${cat}</span><span class="bar-val">${fmt(amt)}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%;background:${catColor(i)}"></div></div>
+    </div>`;
+  }).join('');
+
+  /* DETAIL */
+  if (!sorted.length) { document.getElementById('report-list').innerHTML='<div class="empty">Δεν υπάρχουν εγγραφές.</div>'; return; }
+  document.getElementById('report-list').innerHTML = sorted.map(([cat,ents],i)=>{
+    const catTotal = ents.reduce((s,e)=>s+e.amount,0);
+    const pct = total>0?catTotal/total*100:0;
+    const bySub={};
+    ents.forEach(e=>{ if(!bySub[e.subcat]) bySub[e.subcat]=[]; bySub[e.subcat].push(e); });
+    const subRows = Object.entries(bySub).sort((a,b)=>b[1].reduce((s,e)=>s+e.amount,0)-a[1].reduce((s,e)=>s+e.amount,0)).map(([sub,ses])=>{
+      const subTotal=ses.reduce((s,e)=>s+e.amount,0);
+      const details=ses.map(e=>{
+        const lbl=[e.desc,e.date,e.note].filter(Boolean).join(' · ')||'—';
+        return `<div class="cat-row" style="padding-left:12px;font-size:12px;color:var(--text3)"><span>${lbl}</span><span class="row-amount">${fmt(e.amount)}</span></div>`;
+      }).join('');
+      return `<div class="cat-row" style="font-weight:500"><span>${sub}</span><span class="row-amount">${fmt(subTotal)}</span></div>${details}`;
+    }).join('');
+    return `<div class="cat-card" style="border-left:3px solid ${catColor(i)}">
+      <div class="cat-top"><span class="cat-name">${cat}</span><span class="cat-amount">${fmt(catTotal)}</span></div>
+      <div class="cat-sub">${pct.toFixed(1)}% του συνόλου · ${ents.length} εγγραφές</div>
+      <div class="cat-rows">${subRows}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ---- CATEGORIES TAB ---- */
+function renderCats() {
+  const container = document.getElementById('cats-list');
+  container.innerHTML = Object.entries(cats).map(([cat,subs])=>`
+    <div class="cat-manage-card" id="cmc-${esc(cat)}">
+      <div class="cat-manage-header" onclick="toggleCatBody('${esc(cat)}')">
+        <span class="cat-manage-name">${cat}</span>
+        <span class="cat-manage-count">${subs.length} υποκατ. ▾</span>
+      </div>
+      <div class="cat-manage-body" id="cmb-${esc(cat)}">
+        <div id="ren-cat-${esc(cat)}"></div>
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          <button class="btn-icon ren" onclick="startRenameCat('${esc(cat)}')">✏ Μετονομασία κατ.</button>
+          <button class="btn-icon del" onclick="deleteCat('${esc(cat)}')">✕ Διαγραφή κατ.</button>
+        </div>
+        ${subs.map(s=>`
+          <div class="sub-row" id="subrow-${esc(cat)}-${esc(s)}">
+            <div id="ren-sub-${esc(cat)}-${esc(s)}">
+              <span class="sub-name">${s}</span>
+            </div>
+            <div class="sub-actions">
+              <button class="btn-icon ren" onclick="startRenameSub('${esc(cat)}','${esc(s)}')">✏</button>
+              <button class="btn-icon del" onclick="deleteSub('${esc(cat)}','${esc(s)}')">✕</button>
+            </div>
+          </div>`).join('')}
+        <div class="add-sub-row">
+          <input type="text" id="addsub-${esc(cat)}" placeholder="Νέα υποκατηγορία…" autocomplete="off" />
+          <button class="btn-xs" onclick="addSubFromTab('${esc(cat)}')">＋</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function esc(s){ return s.replace(/[^a-zA-Z0-9\u0370-\u03FF\u1F00-\u1FFF]/g,'_'); }
+
+function toggleCatBody(cat) {
+  const body = document.getElementById('cmb-'+cat);
+  if (body) body.classList.toggle('open');
+}
+
+function addCategory() {
+  const name = document.getElementById('new-cat-inp').value.trim();
+  if (!name) return;
+  if (cats[name]) { alert('Η κατηγορία υπάρχει ήδη.'); return; }
+  cats[name] = ['Άλλο'];
+  saveCats(); populateCatDropdowns(); renderCats();
+  document.getElementById('new-cat-inp').value = '';
+}
+
+function deleteCat(cat) {
+  const realCat = Object.keys(cats).find(k=>esc(k)===cat);
+  if (!realCat) return;
+  const count = entries.filter(e=>e.cat===realCat).length;
+  if (!confirm(`Διαγραφή κατηγορίας "${realCat}";${count?' Υπάρχουν '+count+' εγγραφές με αυτή την κατηγορία.':''}`)) return;
+  delete cats[realCat];
+  saveCats(); populateCatDropdowns(); renderCats();
+}
+
+function addSubFromTab(catEsc) {
+  const realCat = Object.keys(cats).find(k=>esc(k)===catEsc);
+  if (!realCat) return;
+  const inp = document.getElementById('addsub-'+catEsc);
+  const name = inp.value.trim();
+  if (!name) return;
+  if (cats[realCat].includes(name)) { alert('Υπάρχει ήδη.'); return; }
+  const idx = cats[realCat].indexOf('Άλλο');
+  if (idx>=0) cats[realCat].splice(idx,0,name); else cats[realCat].push(name);
+  saveCats(); inp.value=''; renderCats();
+  setTimeout(()=>{ const b=document.getElementById('cmb-'+catEsc); if(b) b.classList.add('open'); },10);
+}
+
+function deleteSub(catEsc, subEsc) {
+  const realCat = Object.keys(cats).find(k=>esc(k)===catEsc);
+  if (!realCat) return;
+  const realSub = cats[realCat].find(s=>esc(s)===subEsc);
+  if (!realSub) return;
+  if (realSub==='Άλλο') { alert('Η υποκατηγορία "Άλλο" δεν μπορεί να διαγραφεί.'); return; }
+  const count = entries.filter(e=>e.cat===realCat&&e.subcat===realSub).length;
+  if (!confirm(`Διαγραφή "${realSub}";${count?' Υπάρχουν '+count+' εγγραφές.':''}`)) return;
+  cats[realCat] = cats[realCat].filter(s=>s!==realSub);
+  saveCats(); renderCats();
+  setTimeout(()=>{ const b=document.getElementById('cmb-'+catEsc); if(b) b.classList.add('open'); },10);
+}
+
+function startRenameCat(catEsc) {
+  const realCat = Object.keys(cats).find(k=>esc(k)===catEsc);
+  if (!realCat) return;
+  const el = document.getElementById('ren-cat-'+catEsc);
+  el.innerHTML = `<input class="rename-input" id="rci-${catEsc}" value="${realCat}" />
+    <div class="rename-actions">
+      <button class="btn-save" onclick="doRenameCat('${catEsc}')">✓ Αποθήκευση</button>
+      <button class="btn-cancel" onclick="renderCats();setTimeout(()=>{const b=document.getElementById('cmb-${catEsc}');if(b)b.classList.add('open');},10)">Ακύρωση</button>
+    </div>`;
+  setTimeout(()=>document.getElementById('rci-'+catEsc)?.focus(),50);
+}
+
+function doRenameCat(catEsc) {
+  const realCat = Object.keys(cats).find(k=>esc(k)===catEsc);
+  if (!realCat) return;
+  const newName = document.getElementById('rci-'+catEsc)?.value.trim();
+  if (!newName||newName===realCat) { renderCats(); return; }
+  if (cats[newName]) { alert('Υπάρχει ήδη κατηγορία με αυτό το όνομα.'); return; }
+  const count = entries.filter(e=>e.cat===realCat).length;
+  if (!confirm(`Μετονομασία "${realCat}" → "${newName}";${count?' Θα ενημερωθούν '+count+' εγγραφές.':''}`)) return;
+  const newCats = {};
+  Object.entries(cats).forEach(([k,v])=>{ newCats[k===realCat?newName:k]=v; });
+  cats = newCats;
+  entries.forEach(e=>{ if(e.cat===realCat) e.cat=newName; });
+  save(); saveCats(); populateCatDropdowns(); renderCats();
+  setTimeout(()=>{ const b=document.getElementById('cmb-'+esc(newName)); if(b) b.classList.add('open'); },10);
+}
+
+function startRenameSub(catEsc, subEsc) {
+  const realCat = Object.keys(cats).find(k=>esc(k)===catEsc);
+  if (!realCat) return;
+  const realSub = cats[realCat].find(s=>esc(s)===subEsc);
+  if (!realSub) return;
+  if (realSub==='Άλλο') { alert('Το "Άλλο" δεν μπορεί να μετονομαστεί.'); return; }
+  const el = document.getElementById('ren-sub-'+catEsc+'-'+subEsc);
+  el.innerHTML = `<input class="rename-input" id="rsi-${catEsc}-${subEsc}" value="${realSub}" />
+    <div class="rename-actions">
+      <button class="btn-save" onclick="doRenameSub('${catEsc}','${subEsc}')">✓ Αποθήκευση</button>
+      <button class="btn-cancel" onclick="renderCats();setTimeout(()=>{const b=document.getElementById('cmb-${catEsc}');if(b)b.classList.add('open');},10)">Ακύρωση</button>
+    </div>`;
+  setTimeout(()=>document.getElementById('rsi-'+catEsc+'-'+subEsc)?.focus(),50);
+}
+
+function doRenameSub(catEsc, subEsc) {
+  const realCat = Object.keys(cats).find(k=>esc(k)===catEsc);
+  if (!realCat) return;
+  const realSub = cats[realCat].find(s=>esc(s)===subEsc);
+  if (!realSub) return;
+  const newName = document.getElementById('rsi-'+catEsc+'-'+subEsc)?.value.trim();
+  if (!newName||newName===realSub) { renderCats(); return; }
+  if (cats[realCat].includes(newName)) { alert('Υπάρχει ήδη αυτή η υποκατηγορία.'); return; }
+  const count = entries.filter(e=>e.cat===realCat&&e.subcat===realSub).length;
+  if (!confirm(`Μετονομασία "${realSub}" → "${newName}";${count?' Θα ενημερωθούν '+count+' εγγραφές.':''}`)) return;
+  cats[realCat] = cats[realCat].map(s=>s===realSub?newName:s);
+  entries.forEach(e=>{ if(e.cat===realCat&&e.subcat===realSub) e.subcat=newName; });
+  save(); saveCats(); renderCats();
+  setTimeout(()=>{ const b=document.getElementById('cmb-'+catEsc); if(b) b.classList.add('open'); },10);
+}
+
+populateCatDropdowns();
+populateYearDropdowns();
+render();
+</script>
+</body>
+</html>
