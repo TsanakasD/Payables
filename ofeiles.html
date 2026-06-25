@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Οφειλές" />
+<title>Οφειλές</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f5;
+    --bg3: #efefef;
+    --text: #111111;
+    --text2: #555555;
+    --text3: #999999;
+    --border: #e0e0e0;
+    --border2: #cccccc;
+    --info-bg: #e8f0fe;
+    --info-text: #1a56c4;
+    --info-border: #b3caf7;
+    --danger-bg: #fdecea;
+    --danger-text: #c0392b;
+    --danger-border: #f5b7b1;
+    --success-bg: #eafaf1;
+    --success-text: #1e8449;
+    --success-border: #a9dfbf;
+    --radius: 10px;
+    --radius-sm: 7px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1e;
+      --bg2: #2c2c2e;
+      --bg3: #3a3a3c;
+      --text: #f2f2f7;
+      --text2: #aeaeb2;
+      --text3: #636366;
+      --border: #3a3a3c;
+      --border2: #48484a;
+      --info-bg: #1a2a4a;
+      --info-text: #6fa3ef;
+      --info-border: #2a4a7a;
+      --danger-bg: #3a1a1a;
+      --danger-text: #f07070;
+      --danger-border: #6a2a2a;
+      --success-bg: #1a3a2a;
+      --success-text: #5dbf85;
+      --success-border: #2a6a4a;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); min-height: 100vh; }
+  .app { max-width: 480px; margin: 0 auto; padding: 0 0 80px; }
+
+  /* Header */
+  .app-header { background: var(--bg); border-bottom: 0.5px solid var(--border); padding: 16px 16px 0; position: sticky; top: 0; z-index: 10; }
+  .app-title { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .total-pill { font-size: 13px; background: var(--danger-bg); color: var(--danger-text); border: 0.5px solid var(--danger-border); padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 0; border-bottom: none; }
+  .tab { flex: 1; padding: 10px 8px; font-size: 14px; font-weight: 500; border: none; background: transparent; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--info-text); border-bottom: 2px solid var(--info-text); }
+
+  .page { display: none; padding: 16px; }
+  .page.active { display: block; }
+
+  /* Form */
+  .add-form { background: var(--bg); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 14px; margin-bottom: 14px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 3px; }
+  label { font-size: 11px; color: var(--text2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+  input, select, textarea {
+    width: 100%; font-size: 15px; padding: 9px 10px;
+    border: 0.5px solid var(--border2); border-radius: var(--radius-sm);
+    background: var(--bg2); color: var(--text);
+    -webkit-appearance: none; appearance: none; outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--info-text); }
+  textarea { resize: none; height: 52px; font-family: inherit; }
+  .btn-add {
+    width: 100%; margin-top: 10px; font-size: 15px; font-weight: 600;
+    background: var(--info-bg); color: var(--info-text);
+    border: 0.5px solid var(--info-border); padding: 11px;
+    border-radius: var(--radius-sm); cursor: pointer;
+  }
+  .btn-add:active { opacity: 0.8; }
+
+  /* Entries */
+  .entry {
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px;
+  }
+  .entry.paid { opacity: 0.5; }
+  .entry-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 3px; }
+  .entry-name { font-size: 16px; font-weight: 600; color: var(--text); }
+  .entry-amount { font-size: 16px; font-weight: 700; color: var(--danger-text); }
+  .entry.paid .entry-amount { color: var(--success-text); text-decoration: line-through; }
+  .paid-badge { display: inline-block; font-size: 10px; background: var(--success-bg); color: var(--success-text); border: 0.5px solid var(--success-border); padding: 1px 7px; border-radius: 20px; margin-left: 6px; vertical-align: middle; font-weight: 500; }
+  .entry-meta { font-size: 12px; color: var(--text3); margin-bottom: 10px; }
+  .entry-actions { display: flex; gap: 7px; }
+  .btn-sm {
+    font-size: 13px; padding: 6px 12px; border-radius: var(--radius-sm);
+    cursor: pointer; border: 0.5px solid var(--border2);
+    background: transparent; color: var(--text2); font-weight: 500;
+  }
+  .btn-sm:active { opacity: 0.7; }
+  .btn-paid { color: var(--success-text); border-color: var(--success-border); background: var(--success-bg); }
+  .btn-del { color: var(--danger-text); border-color: var(--danger-border); background: var(--danger-bg); }
+
+  .empty { text-align: center; color: var(--text3); font-size: 14px; padding: 3rem 0; }
+
+  /* Report */
+  .report-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .stat-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+  .stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 500; }
+  .stat-value { font-size: 22px; font-weight: 700; color: var(--text); }
+  .stat-value.danger { color: var(--danger-text); }
+  .stat-value.success { color: var(--success-text); }
+
+  .person-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; }
+  .person-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+  .person-name { font-size: 16px; font-weight: 600; color: var(--text); }
+  .person-total { font-size: 16px; font-weight: 700; color: var(--danger-text); }
+  .person-total.zero { color: var(--success-text); }
+  .person-detail { font-size: 12px; color: var(--text3); margin-bottom: 8px; }
+  .person-rows { border-top: 0.5px solid var(--border); padding-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+  .person-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); }
+  .person-row.paid-row { opacity: 0.45; text-decoration: line-through; }
+  .person-row .row-amount { font-weight: 600; color: var(--danger-text); }
+  .person-row.paid-row .row-amount { color: var(--success-text); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="app-header">
+    <div class="app-title">
+      Μου χρωστάνε
+      <span class="total-pill" id="total-badge">€0.00</span>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('entries', this)">📋 Καταχωρήσεις</button>
+      <button class="tab" onclick="switchTab('report', this)">📊 Αναφορά</button>
+    </div>
+  </div>
+
+  <!-- Καταχωρήσεις -->
+  <div class="page active" id="page-entries">
+    <div class="add-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Όνομα</label>
+          <input type="text" id="inp-name" placeholder="π.χ. Γιώργης" list="names-list" autocomplete="off" />
+          <datalist id="names-list"></datalist>
+        </div>
+        <div class="form-group">
+          <label>Ποσό (€)</label>
+          <input type="number" id="inp-amount" placeholder="0.00" min="0" step="0.01" inputmode="decimal" />
+        </div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group">
+          <label>Ημερομηνία</label>
+          <input type="date" id="inp-date" />
+        </div>
+        <div class="form-group">
+          <label>Μήνας</label>
+          <select id="inp-month">
+            <option value="">—</option>
+            <option>Ιανουάριος</option><option>Φεβρουάριος</option><option>Μάρτιος</option>
+            <option>Απρίλιος</option><option>Μάιος</option><option>Ιούνιος</option>
+            <option>Ιούλιος</option><option>Αύγουστος</option><option>Σεπτέμβριος</option>
+            <option>Οκτώβριος</option><option>Νοέμβριος</option><option>Δεκέμβριος</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Έτος</label>
+          <input type="number" id="inp-year" placeholder="2026" min="2020" max="2099" inputmode="numeric" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Σημείωση</label>
+        <textarea id="inp-note" placeholder="προαιρετικά..."></textarea>
+      </div>
+      <button class="btn-add" onclick="addEntry()">+ Προσθήκη</button>
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <!-- Αναφορά -->
+  <div class="page" id="page-report">
+    <div class="report-summary">
+      <div class="stat-card">
+        <div class="stat-label">Ανοιχτές οφειλές</div>
+        <div class="stat-value danger" id="r-total">€0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Εξοφλημένα</div>
+        <div class="stat-value success" id="r-paid">€0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Άτομα με οφειλή</div>
+        <div class="stat-value" id="r-people">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Σύνολο εγγραφών</div>
+        <div class="stat-value" id="r-count">0</div>
+      </div>
+    </div>
+    <div id="report-list"></div>
+  </div>
+</div>
+
+<script>
+let entries = [];
+try { entries = JSON.parse(localStorage.getItem('ofeiles_v1') || '[]'); } catch(e) { entries = []; }
+
+function save() { try { localStorage.setItem('ofeiles_v1', JSON.stringify(entries)); } catch(e) {} }
+
+const now = new Date();
+document.getElementById('inp-date').value = now.toISOString().slice(0,10);
+document.getElementById('inp-year').value = now.getFullYear();
+document.getElementById('inp-month').selectedIndex = now.getMonth() + 1;
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('page-' + tab).classList.add('active');
+  if (tab === 'report') renderReport();
+}
+
+function updateNamesList() {
+  const names = [...new Set(entries.map(e => e.name))];
+  document.getElementById('names-list').innerHTML = names.map(n => `<option value="${n}">`).join('');
+}
+
+function addEntry() {
+  const name = document.getElementById('inp-name').value.trim();
+  const amount = parseFloat(document.getElementById('inp-amount').value);
+  if (!name || isNaN(amount) || amount <= 0) { alert('Συμπλήρωσε τουλάχιστον όνομα και ποσό.'); return; }
+  entries.unshift({
+    id: Date.now(), name, amount,
+    date: document.getElementById('inp-date').value,
+    month: document.getElementById('inp-month').value,
+    year: document.getElementById('inp-year').value,
+    note: document.getElementById('inp-note').value.trim(),
+    paid: false
+  });
+  save(); render();
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-amount').value = '';
+  document.getElementById('inp-note').value = '';
+}
+
+function togglePaid(id) {
+  const e = entries.find(x => x.id === id);
+  if (e) { e.paid = !e.paid; save(); render(); }
+}
+
+function deleteEntry(id) {
+  if (!confirm('Να διαγραφεί η εγγραφή;')) return;
+  entries = entries.filter(x => x.id !== id);
+  save(); render();
+}
+
+function fmt(n) { return '€' + parseFloat(n).toFixed(2); }
+
+function render() {
+  updateNamesList();
+  const pending = entries.filter(e => !e.paid);
+  const total = pending.reduce((s,e) => s + e.amount, 0);
+  document.getElementById('total-badge').textContent = fmt(total);
+
+  const list = document.getElementById('list');
+  if (entries.length === 0) { list.innerHTML = '<div class="empty">Δεν υπάρχουν καταχωρήσεις ακόμα.</div>'; return; }
+
+  list.innerHTML = entries.map(e => {
+    const meta = [e.date, e.month, e.year, e.note].filter(Boolean).join(' · ');
+    return `<div class="entry${e.paid?' paid':''}">
+      <div class="entry-top">
+        <span class="entry-name">${e.name}${e.paid?'<span class="paid-badge">Εξοφλήθηκε</span>':''}</span>
+        <span class="entry-amount">${fmt(e.amount)}</span>
+      </div>
+      <div class="entry-meta">${meta || '—'}</div>
+      <div class="entry-actions">
+        <button class="btn-sm btn-paid" onclick="togglePaid(${e.id})">${e.paid?'↩ Αναίρεση':'✓ Εξοφλήθηκε'}</button>
+        <button class="btn-sm btn-del" onclick="deleteEntry(${e.id})">✕ Διαγραφή</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderReport() {
+  const pendingTotal = entries.filter(e=>!e.paid).reduce((s,e)=>s+e.amount,0);
+  const paidTotal = entries.filter(e=>e.paid).reduce((s,e)=>s+e.amount,0);
+  document.getElementById('r-total').textContent = fmt(pendingTotal);
+  document.getElementById('r-paid').textContent = fmt(paidTotal);
+  document.getElementById('r-count').textContent = entries.length;
+
+  const byName = {};
+  entries.forEach(e => { if (!byName[e.name]) byName[e.name]=[]; byName[e.name].push(e); });
+
+  const peopleWithDebt = Object.keys(byName).filter(n => byName[n].some(e=>!e.paid)).length;
+  document.getElementById('r-people').textContent = peopleWithDebt;
+
+  const sorted = Object.entries(byName).sort((a,b) => {
+    const at = a[1].filter(e=>!e.paid).reduce((s,e)=>s+e.amount,0);
+    const bt = b[1].filter(e=>!e.paid).reduce((s,e)=>s+e.amount,0);
+    return bt - at;
+  });
+
+  if (sorted.length === 0) { document.getElementById('report-list').innerHTML = '<div class="empty">Δεν υπάρχουν καταχωρήσεις.</div>'; return; }
+
+  document.getElementById('report-list').innerHTML = sorted.map(([name, ents]) => {
+    const openTotal = ents.filter(e=>!e.paid).reduce((s,e)=>s+e.amount,0);
+    const openCount = ents.filter(e=>!e.paid).length;
+    const paidCount = ents.filter(e=>e.paid).length;
+    const rows = ents.map(e => {
+      const label = [e.date, e.note].filter(Boolean).join(' · ') || '—';
+      return `<div class="person-row${e.paid?' paid-row':''}">
+        <span>${label}</span>
+        <span class="row-amount">${fmt(e.amount)}</span>
+      </div>`;
+    }).join('');
+    return `<div class="person-card">
+      <div class="person-top">
+        <span class="person-name">${name}</span>
+        <span class="person-total${openTotal===0?' zero':''}">${fmt(openTotal)}</span>
+      </div>
+      <div class="person-detail">${openCount} ανοιχτές${paidCount>0?' · '+paidCount+' εξοφλημένες':''}</div>
+      <div class="person-rows">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+render();
+</script>
+</body>
+</html>
