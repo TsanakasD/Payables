@@ -1,37 +1,34 @@
 <!DOCTYPE html>
-<html lang="el">
+<html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Έξοδα"/>
-<title>Έξοδα</title>
+<meta name="apple-mobile-web-app-title" content="Expenses"/>
+<title>Expenses</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--bg4:#2a2a2a;
   --text:#f2f2f2;--text2:#888;--text3:#444;
   --border:#232323;--border2:#2e2e2e;
-  --gold:#e0c97f;--gold-bg:#1e1a0f;--gold-border:#3a3020;
+  --gold:#e0c97f;--gold2:#c9a84c;--gold-bg:#1e1a0f;--gold-border:#3a3020;
+  --danger:#e05c5c;--danger-bg:#2a1515;
   --radius:10px;--radius-sm:8px;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 .app{max-width:480px;margin:0 auto;padding:0 0 90px;}
-
 .app-header{background:var(--bg);border-bottom:0.5px solid var(--border);padding:20px 16px 0;position:sticky;top:0;z-index:10;}
 .header-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px;}
 .month-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
 .total-amount{font-size:30px;font-weight:300;color:var(--text);letter-spacing:-0.5px;}
 .total-pill{font-size:11px;background:var(--gold-bg);color:var(--gold);border:0.5px solid var(--gold-border);padding:4px 10px;border-radius:20px;font-weight:500;margin-bottom:4px;}
-
 .tabs{display:flex;}
-.tab{flex:1;padding:10px 4px;font-size:12px;font-weight:500;border:none;background:transparent;color:var(--text3);cursor:pointer;border-bottom:1.5px solid transparent;letter-spacing:0.2px;}
+.tab{flex:1;padding:10px 4px;font-size:12px;font-weight:500;border:none;background:transparent;color:var(--text3);cursor:pointer;border-bottom:1.5px solid transparent;}
 .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
-
 .page{display:none;padding:16px;}
 .page.active{display:block;}
-
 .add-form{background:var(--bg2);border-radius:var(--radius);border:0.5px solid var(--border2);padding:14px;margin-bottom:14px;}
 .sec-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:500;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
@@ -39,30 +36,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .form-row.three{grid-template-columns:1fr 1fr 1fr;}
 .form-group{display:flex;flex-direction:column;gap:3px;}
 label{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;}
-input,select,textarea{
-  width:100%;font-size:14px;padding:9px 10px;
-  border:0.5px solid var(--border2);border-radius:var(--radius-sm);
-  background:var(--bg3);color:var(--text);
-  -webkit-appearance:none;appearance:none;outline:none;
-}
+input,select,textarea{width:100%;font-size:14px;padding:9px 10px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg3);color:var(--text);-webkit-appearance:none;appearance:none;outline:none;}
 input:focus,select:focus,textarea:focus{border-color:var(--gold);background:var(--gold-bg);}
 select option{background:var(--bg3);}
 select:disabled{opacity:0.3;}
 textarea{resize:none;height:50px;font-family:inherit;}
-
 .new-sub-row{display:flex;gap:6px;margin-top:6px;}
 .new-sub-row input{flex:1;font-size:13px;padding:7px 9px;}
 .btn-xs{font-size:11px;padding:7px 10px;border-radius:var(--radius-sm);cursor:pointer;border:0.5px solid var(--gold-border);background:var(--gold-bg);color:var(--gold);font-weight:600;white-space:nowrap;}
 .btn-xs.cancel{background:var(--bg3);color:var(--text3);border-color:var(--border2);}
 .btn-xs:active{opacity:0.7;}
-
-.btn-add{width:100%;margin-top:10px;font-size:14px;font-weight:600;background:var(--gold);color:#0f0f0f;border:none;padding:12px;border-radius:var(--radius-sm);cursor:pointer;letter-spacing:0.2px;}
+.btn-add{width:100%;margin-top:10px;font-size:14px;font-weight:600;background:var(--gold2);color:#0f0f0f;border:none;padding:12px;border-radius:var(--radius-sm);cursor:pointer;}
 .btn-add:active{opacity:0.85;}
-
+.btn-add:disabled{opacity:0.5;cursor:not-allowed;}
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;}
 .filter-bar select{flex:1;font-size:12px;padding:7px 8px;color:var(--text2);}
-
 .entry{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;}
+.entry.loading-state{opacity:0.5;pointer-events:none;}
 .entry-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:3px;}
 .entry-name{font-size:14px;font-weight:500;color:var(--text);}
 .entry-amount{font-size:14px;font-weight:600;color:var(--gold);}
@@ -72,34 +62,30 @@ textarea{resize:none;height:50px;font-family:inherit;}
 .btn-sm{font-size:12px;padding:5px 11px;border-radius:6px;cursor:pointer;border:0.5px solid var(--border2);background:transparent;color:var(--text3);font-weight:500;}
 .btn-sm.del{color:#e05555;border-color:#3a1a1a;background:#1e0f0f;}
 .btn-sm:active{opacity:0.7;}
-
 .empty{text-align:center;color:var(--text3);font-size:13px;padding:3rem 0;}
-
-/* REPORT */
+.loading{text-align:center;color:var(--text3);font-size:13px;padding:2rem 0;}
+.spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-msg{text-align:center;color:var(--danger);font-size:13px;padding:1rem;}
 .report-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
 .stat-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;}
 .stat-label{font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
 .stat-value{font-size:22px;font-weight:300;color:var(--text);letter-spacing:-0.3px;}
 .stat-value.gold{color:var(--gold);}
-
 .chart-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
 .chart-title{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
-
 .donut-wrap{display:flex;align-items:center;gap:16px;}
 .donut-legend{flex:1;display:flex;flex-direction:column;gap:7px;}
 .legend-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);}
 .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .legend-name{flex:1;}
 .legend-pct{font-weight:600;color:var(--text);}
-
 .bar-chart{display:flex;flex-direction:column;gap:12px;}
-.bar-item{}
 .bar-label-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;}
 .bar-label{color:var(--text2);}
 .bar-val{font-weight:600;color:var(--gold);}
 .bar-track{background:var(--bg4);border-radius:3px;height:6px;}
 .bar-fill{height:6px;border-radius:3px;}
-
 .cat-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;border-left:2px solid;}
 .cat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
 .cat-name{font-size:14px;font-weight:500;color:var(--text);}
@@ -108,8 +94,6 @@ textarea{resize:none;height:50px;font-family:inherit;}
 .cat-rows{border-top:0.5px solid var(--border);padding-top:8px;display:flex;flex-direction:column;gap:5px;}
 .cat-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);}
 .cat-row .row-amt{font-weight:500;color:var(--text);}
-
-/* CATS TAB */
 .new-cat-form{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);padding:14px;margin-bottom:14px;}
 .cat-manage-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden;}
 .cat-manage-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;}
@@ -141,187 +125,234 @@ textarea{resize:none;height:50px;font-family:inherit;}
   <div class="app-header">
     <div class="header-top">
       <div>
-        <div class="month-label" id="current-month">Ιούνιος 2026</div>
+        <div class="month-label" id="current-month"></div>
         <div class="total-amount" id="total-amount">€ 0.00</div>
       </div>
-      <div class="total-pill" id="total-pill">Σύνολο μήνα</div>
+      <div class="total-pill" id="total-pill">Month total</div>
     </div>
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('entries',this)">📋 Καταχώρηση</button>
-      <button class="tab" onclick="switchTab('report',this)">📊 Αναφορά</button>
-      <button class="tab" onclick="switchTab('cats',this)">📂 Κατηγορίες</button>
+      <button class="tab active" onclick="switchTab('entries',this)">📋 Entries</button>
+      <button class="tab" onclick="switchTab('report',this)">📊 Report</button>
+      <button class="tab" onclick="switchTab('cats',this)">📂 Categories</button>
     </div>
   </div>
 
-  <!-- ΚΑΤΑΧΩΡΗΣΗ -->
   <div class="page active" id="page-entries">
     <div class="add-form">
-      <div class="sec-label">Νέο έξοδο</div>
+      <div class="sec-label">New Expense</div>
       <div class="form-row">
         <div class="form-group">
-          <label>Κατηγορία</label>
-          <select id="inp-cat" onchange="onCatChange()"><option value="">— Επίλεξε —</option></select>
+          <label>Category</label>
+          <select id="inp-cat" onchange="onCatChange()"><option value="">— Select —</option></select>
         </div>
         <div class="form-group">
-          <label>Υποκατηγορία</label>
+          <label>Subcategory</label>
           <select id="inp-subcat" disabled><option value="">—</option></select>
         </div>
       </div>
       <div id="new-sub-wrap" style="display:none" class="form-row full">
         <div class="form-group">
-          <label>Νέα υποκατηγορία</label>
+          <label>New Subcategory</label>
           <div class="new-sub-row">
-            <input type="text" id="new-sub-inp" placeholder="π.χ. Netflix" autocomplete="off"/>
-            <button class="btn-xs" onclick="addSubFromForm()">＋ Αποθήκευση</button>
+            <input type="text" id="new-sub-inp" placeholder="e.g. Netflix" autocomplete="off"/>
+            <button class="btn-xs" onclick="addSubFromForm()">＋ Save</button>
             <button class="btn-xs cancel" onclick="cancelNewSub()">✕</button>
           </div>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Περιγραφή</label>
-          <input type="text" id="inp-desc" placeholder="προαιρετικά…" autocomplete="off"/>
+          <label>Description</label>
+          <input type="text" id="inp-desc" placeholder="optional..." autocomplete="off"/>
         </div>
         <div class="form-group">
-          <label>Ποσό (€)</label>
+          <label>Amount (€)</label>
           <input type="number" id="inp-amount" placeholder="0.00" min="0" step="0.01" inputmode="decimal"/>
         </div>
       </div>
       <div class="form-row three">
         <div class="form-group">
-          <label>Ημερομηνία</label>
+          <label>Date</label>
           <input type="date" id="inp-date"/>
         </div>
         <div class="form-group">
-          <label>Μήνας</label>
+          <label>Month</label>
           <select id="inp-month">
             <option value="">—</option>
-            <option>Ιανουάριος</option><option>Φεβρουάριος</option><option>Μάρτιος</option>
-            <option>Απρίλιος</option><option>Μάιος</option><option>Ιούνιος</option>
-            <option>Ιούλιος</option><option>Αύγουστος</option><option>Σεπτέμβριος</option>
-            <option>Οκτώβριος</option><option>Νοέμβριος</option><option>Δεκέμβριος</option>
+            <option>January</option><option>February</option><option>March</option>
+            <option>April</option><option>May</option><option>June</option>
+            <option>July</option><option>August</option><option>September</option>
+            <option>October</option><option>November</option><option>December</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Έτος</label>
+          <label>Year</label>
           <input type="number" id="inp-year" placeholder="2026" min="2020" max="2099" inputmode="numeric"/>
         </div>
       </div>
       <div class="form-row full">
         <div class="form-group">
-          <label>Σημείωση</label>
-          <textarea id="inp-note" placeholder="προαιρετικά…"></textarea>
+          <label>Note</label>
+          <textarea id="inp-note" placeholder="optional..."></textarea>
         </div>
       </div>
-      <button class="btn-add" onclick="addEntry()">＋ Προσθήκη Εξόδου</button>
+      <button class="btn-add" id="btn-add" onclick="addEntry()">＋ Add Expense</button>
     </div>
     <div class="filter-bar">
-      <select id="flt-month" onchange="render()">
-        <option value="">Όλοι οι μήνες</option>
-        <option>Ιανουάριος</option><option>Φεβρουάριος</option><option>Μάρτιος</option>
-        <option>Απρίλιος</option><option>Μάιος</option><option>Ιούνιος</option>
-        <option>Ιούλιος</option><option>Αύγουστος</option><option>Σεπτέμβριος</option>
-        <option>Οκτώβριος</option><option>Νοέμβριος</option><option>Δεκέμβριος</option>
+      <select id="flt-month" onchange="renderEntries()">
+        <option value="">All months</option>
+        <option>January</option><option>February</option><option>March</option>
+        <option>April</option><option>May</option><option>June</option>
+        <option>July</option><option>August</option><option>September</option>
+        <option>October</option><option>November</option><option>December</option>
       </select>
-      <select id="flt-year" onchange="render()"><option value="">Όλα τα έτη</option></select>
-      <select id="flt-cat" onchange="render()"><option value="">Όλες οι κατηγορίες</option></select>
+      <select id="flt-year" onchange="renderEntries()"><option value="">All years</option></select>
+      <select id="flt-cat" onchange="renderEntries()"><option value="">All categories</option></select>
     </div>
-    <div id="list"></div>
+    <div id="list"><div class="loading"><div class="spinner"></div>Loading...</div></div>
   </div>
 
-  <!-- ΑΝΑΦΟΡΑ -->
   <div class="page" id="page-report">
     <div class="filter-bar">
       <select id="r-flt-month" onchange="renderReport()">
-        <option value="">Όλοι οι μήνες</option>
-        <option>Ιανουάριος</option><option>Φεβρουάριος</option><option>Μάρτιος</option>
-        <option>Απρίλιος</option><option>Μάιος</option><option>Ιούνιος</option>
-        <option>Ιούλιος</option><option>Αύγουστος</option><option>Σεπτέμβριος</option>
-        <option>Οκτώβριος</option><option>Νοέμβριος</option><option>Δεκέμβριος</option>
+        <option value="">All months</option>
+        <option>January</option><option>February</option><option>March</option>
+        <option>April</option><option>May</option><option>June</option>
+        <option>July</option><option>August</option><option>September</option>
+        <option>October</option><option>November</option><option>December</option>
       </select>
-      <select id="r-flt-year" onchange="renderReport()"><option value="">Όλα τα έτη</option></select>
+      <select id="r-flt-year" onchange="renderReport()"><option value="">All years</option></select>
     </div>
     <div class="report-stats">
-      <div class="stat-card"><div class="stat-label">Σύνολο εξόδων</div><div class="stat-value gold" id="r-total">€0.00</div></div>
-      <div class="stat-card"><div class="stat-label">Εγγραφές</div><div class="stat-value" id="r-count">0</div></div>
-      <div class="stat-card"><div class="stat-label">Κατηγορίες</div><div class="stat-value" id="r-cats">0</div></div>
-      <div class="stat-card"><div class="stat-label">Μέσο / εγγραφή</div><div class="stat-value" id="r-avg">€0.00</div></div>
+      <div class="stat-card"><div class="stat-label">Total expenses</div><div class="stat-value gold" id="r-total">€0.00</div></div>
+      <div class="stat-card"><div class="stat-label">Entries</div><div class="stat-value" id="r-count">0</div></div>
+      <div class="stat-card"><div class="stat-label">Categories</div><div class="stat-value" id="r-cats">0</div></div>
+      <div class="stat-card"><div class="stat-label">Avg / entry</div><div class="stat-value" id="r-avg">€0.00</div></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title">Κατανομή ανά κατηγορία</div>
+      <div class="chart-title">Distribution by category</div>
       <div class="donut-wrap">
         <canvas id="donut-canvas" width="120" height="120" style="flex-shrink:0"></canvas>
         <div class="donut-legend" id="donut-legend"></div>
       </div>
     </div>
     <div class="chart-card">
-      <div class="chart-title">Έξοδα ανά κατηγορία</div>
+      <div class="chart-title">Expenses by category</div>
       <div class="bar-chart" id="bar-chart"></div>
     </div>
     <div id="report-list"></div>
   </div>
 
-  <!-- ΚΑΤΗΓΟΡΙΕΣ -->
   <div class="page" id="page-cats">
     <div class="new-cat-form">
-      <div class="sec-label">Νέα κατηγορία</div>
+      <div class="sec-label">New Category</div>
       <div class="add-sub-row">
-        <input type="text" id="new-cat-inp" placeholder="π.χ. Υγεία" autocomplete="off"/>
-        <button class="btn-xs" onclick="addCategory()">＋ Προσθήκη</button>
+        <input type="text" id="new-cat-inp" placeholder="e.g. Health" autocomplete="off"/>
+        <button class="btn-xs" onclick="addCategory()">＋ Add</button>
       </div>
     </div>
-    <div class="sec-label">Διαχείριση</div>
+    <div class="sec-label">Manage</div>
     <div id="cats-list"></div>
   </div>
 </div>
 
 <script>
+const API = 'https://sheetdb.io/api/v1/q7rr72mkc05eh';
+const EXP_API = API + '?sheet=Expenses';
+const CAT_API = API + '?sheet=Categories';
+const H = {'Content-Type':'application/json'};
+
 const PALETTE=['#e0c97f','#5b8af0','#6bcf8f','#e07b5b','#b57bf0','#5bc4cf','#f0a35b','#e05b8a','#8acf5b','#7b9cf0'];
 
 const DEFAULT_CATS={
-  'Μεταφορά':['Gas','Parking','Car Wash','Άλλο'],
-  'Τρόφιμα':['Food Market (ΑΒ)','Delivery','Restaurants','Friends & Family','Άλλο'],
-  'Προσωπική Φροντίδα':['Medical Expenses','Barber','Clothing','Gym','Cosmote Bill','Iqos & Vape','Coffee Take away','Άλλο'],
-  'Δάνεια / Συνδρομές':['Alba Payment','Eurobank Credit Card','NBG Credit Card','Spotify','ChatGPT','efood pro','Apple iCloud','Άλλο'],
-  'Επενδύσεις':['Interactive Brokers','Personal Savings','Άλλο'],
-  'Δώρα':['Birthday Gifts','Other Gifts','Άλλο'],
-  'Ψυχαγωγία':['Cinema','Theater','Concerts','Άλλο'],
-  'Φόροι':['National','Άλλο'],
-  'Ταξίδια':['Αεροπορικά','Ξενοδοχείο','Ενοικίαση Αυτοκινήτου','Τρένο / Λεωφορείο','Εστιατόρια Εξωτερικού','Άλλο'],
-  'Άλλο':['Άλλο']
+  'Transportation':['Gas','Parking','Car Wash','Other'],
+  'Food & Groceries':['Supermarket','Delivery','Restaurants','Friends & Family','Other'],
+  'Personal Care':['Medical','Barber','Clothing','Gym','Phone Bill','Coffee','Other'],
+  'Bills & Subscriptions':['Rent','Electricity','Water','Internet','Spotify','Netflix','Other'],
+  'Investments':['Stocks','Savings','Other'],
+  'Gifts':['Birthday','Other Gifts','Other'],
+  'Entertainment':['Cinema','Theater','Concerts','Other'],
+  'Taxes':['National','Other'],
+  'Travel':['Flights','Hotel','Car Rental','Train / Bus','Restaurants Abroad','Other'],
+  'Other':['Other']
 };
 
-let entries=[],cats={};
-try{entries=JSON.parse(localStorage.getItem('expenses_v3')||'[]');}catch(e){entries=[];}
-try{const s=localStorage.getItem('expenses_cats_v3');cats=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_CATS));}catch(e){cats=JSON.parse(JSON.stringify(DEFAULT_CATS));}
+let entries = [], cats = {};
 
-function save(){try{localStorage.setItem('expenses_v3',JSON.stringify(entries));}catch(e){}}
-function saveCats(){try{localStorage.setItem('expenses_cats_v3',JSON.stringify(cats));}catch(e){}}
+async function get(url){ const r=await fetch(url); return r.json(); }
+async function post(url,body){ const r=await fetch(url,{method:'POST',headers:H,body:JSON.stringify(body)}); return r.json(); }
+async function patch(url,body){ const r=await fetch(url,{method:'PATCH',headers:H,body:JSON.stringify(body)}); return r.json(); }
+async function del(url){ const r=await fetch(url,{method:'DELETE',headers:H}); return r.json(); }
 
-const now=new Date();
-const MONTHS=['Ιανουάριος','Φεβρουάριος','Μάρτιος','Απρίλιος','Μάιος','Ιούνιος','Ιούλιος','Αύγουστος','Σεπτέμβριος','Οκτώβριος','Νοέμβριος','Δεκέμβριος'];
+const now = new Date();
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 document.getElementById('inp-date').value=now.toISOString().slice(0,10);
 document.getElementById('inp-year').value=now.getFullYear();
 document.getElementById('inp-month').selectedIndex=now.getMonth()+1;
 document.getElementById('current-month').textContent=MONTHS[now.getMonth()]+' '+now.getFullYear();
 
-function fmt(n){return'€'+parseFloat(n).toFixed(2);}
+function fmt(n){return'€'+parseFloat(n||0).toFixed(2);}
 function catColor(i){return PALETTE[i%PALETTE.length];}
 function catColorIdx(cat){const keys=Object.keys(cats);const i=keys.indexOf(cat);return i>=0?catColor(i):PALETTE[0];}
+function pillStyle(cat){const col=catColorIdx(cat);return`color:${col};border-color:${col}33;background:${col}15;`;}
+function esc(s){return String(s).replace(/[^a-zA-Z0-9\u0370-\u03FF\u1F00-\u1FFF]/g,'_');}
 
-function pillStyle(cat){
-  const col=catColorIdx(cat);
-  return`color:${col};border-color:${col}33;background:${col}15;`;
+async function init(){
+  await loadCats();
+  await loadEntries();
 }
 
-function esc(s){return s.replace(/[^a-zA-Z0-9\u0370-\u03FF\u1F00-\u1FFF]/g,'_');}
+async function loadEntries(){
+  try{
+    document.getElementById('list').innerHTML='<div class="loading"><div class="spinner"></div>Loading...</div>';
+    const data=await get(EXP_API);
+    entries=(Array.isArray(data)?data:[]).map(r=>({...r,amount:parseFloat(r.amount||0)}));
+    entries.sort((a,b)=>Number(b.id)-Number(a.id));
+    populateYearDropdowns();
+    renderEntries();
+  }catch(e){
+    document.getElementById('list').innerHTML='<div class="error-msg">⚠️ Could not load entries.</div>';
+  }
+}
+
+async function loadCats(){
+  try{
+    const data=await get(CAT_API);
+    if(Array.isArray(data)&&data.length>0){
+      cats={};
+      data.forEach(r=>{
+        if(!r.cat)return;
+        if(!cats[r.cat])cats[r.cat]=[];
+        if(r.subcat&&!cats[r.cat].includes(r.subcat))cats[r.cat].push(r.subcat);
+      });
+    } else {
+      cats=JSON.parse(JSON.stringify(DEFAULT_CATS));
+      await saveCatsToSheet();
+    }
+  }catch(e){
+    cats=JSON.parse(JSON.stringify(DEFAULT_CATS));
+  }
+  populateCatDropdowns();
+}
+
+async function saveCatsToSheet(){
+  try{
+    // Clear and rewrite
+    await del(CAT_API+'/all');
+  }catch(e){}
+  const rows=[];
+  Object.entries(cats).forEach(([cat,subs])=>{
+    subs.forEach(sub=>rows.push({cat,subcat:sub}));
+  });
+  if(rows.length) await post(CAT_API,{data:rows});
+}
 
 function populateCatDropdowns(){
   const keys=Object.keys(cats);
   const el=document.getElementById('inp-cat');const v=el.value;
-  el.innerHTML='<option value="">— Επίλεξε —</option>'+keys.map(c=>`<option${c===v?' selected':''}>${c}</option>`).join('');
+  el.innerHTML='<option value="">— Select —</option>'+keys.map(c=>`<option${c===v?' selected':''}>${c}</option>`).join('');
   const flt=document.getElementById('flt-cat');const fv=flt.value;
-  flt.innerHTML='<option value="">Όλες οι κατηγορίες</option>'+keys.map(c=>`<option${c===fv?' selected':''}>${c}</option>`).join('');
+  flt.innerHTML='<option value="">All categories</option>'+keys.map(c=>`<option${c===fv?' selected':''}>${c}</option>`).join('');
 }
 
 function populateYearDropdowns(){
@@ -329,7 +360,7 @@ function populateYearDropdowns(){
   ['flt-year','r-flt-year'].forEach(id=>{
     const el=document.getElementById(id);if(!el)return;
     const v=el.value;
-    el.innerHTML='<option value="">Όλα τα έτη</option>'+years.map(y=>`<option${String(y)===String(v)?' selected':''}>${y}</option>`).join('');
+    el.innerHTML='<option value="">All years</option>'+years.map(y=>`<option${String(y)===String(v)?' selected':''}>${y}</option>`).join('');
   });
 }
 
@@ -340,7 +371,7 @@ function onCatChange(){
   document.getElementById('new-sub-inp').value='';
   if(!cat){subEl.innerHTML='<option value="">—</option>';subEl.disabled=true;return;}
   const subs=cats[cat]||[];
-  subEl.innerHTML='<option value="">— Επίλεξε —</option>'+subs.map(s=>`<option>${s}</option>`).join('')+'<option value="__new__">＋ Νέα υποκατηγορία…</option>';
+  subEl.innerHTML='<option value="">— Select —</option>'+subs.map(s=>`<option>${s}</option>`).join('')+'<option value="__new__">＋ New subcategory…</option>';
   subEl.disabled=false;
   subEl.onchange=onSubChange;
 }
@@ -356,9 +387,13 @@ function addSubFromForm(){
   const name=document.getElementById('new-sub-inp').value.trim();
   if(!cat||!name)return;
   if(!cats[cat])cats[cat]=[];
-  if(!cats[cat].includes(name)){const idx=cats[cat].indexOf('Άλλο');if(idx>=0)cats[cat].splice(idx,0,name);else cats[cat].push(name);saveCats();}
+  if(!cats[cat].includes(name)){
+    const idx=cats[cat].indexOf('Other');
+    if(idx>=0)cats[cat].splice(idx,0,name);else cats[cat].push(name);
+    post(CAT_API,{data:[{cat,subcat:name}]});
+  }
   const subEl=document.getElementById('inp-subcat');
-  subEl.innerHTML='<option value="">— Επίλεξε —</option>'+cats[cat].map(s=>`<option${s===name?' selected':''}>${s}</option>`).join('')+'<option value="__new__">＋ Νέα υποκατηγορία…</option>';
+  subEl.innerHTML='<option value="">— Select —</option>'+cats[cat].map(s=>`<option${s===name?' selected':''}>${s}</option>`).join('')+'<option value="__new__">＋ New subcategory…</option>';
   subEl.value=name;
   document.getElementById('new-sub-wrap').style.display='none';
   document.getElementById('new-sub-inp').value='';
@@ -379,24 +414,42 @@ function switchTab(tab,btn){
   if(tab==='cats')renderCats();
 }
 
-function addEntry(){
+async function addEntry(){
   const cat=document.getElementById('inp-cat').value;
   const subcat=document.getElementById('inp-subcat').value;
   const amount=parseFloat(document.getElementById('inp-amount').value);
-  if(!cat||!subcat||subcat==='__new__'||isNaN(amount)||amount<=0){alert('Συμπλήρωσε κατηγορία, υποκατηγορία και ποσό.');return;}
-  entries.unshift({id:Date.now(),cat,subcat,desc:document.getElementById('inp-desc').value.trim(),amount,date:document.getElementById('inp-date').value,month:document.getElementById('inp-month').value,year:document.getElementById('inp-year').value,note:document.getElementById('inp-note').value.trim()});
-  save();populateYearDropdowns();render();
-  document.getElementById('inp-cat').value='';
-  const subEl=document.getElementById('inp-subcat');subEl.innerHTML='<option value="">—</option>';subEl.disabled=true;
-  document.getElementById('new-sub-wrap').style.display='none';
-  document.getElementById('inp-desc').value='';
-  document.getElementById('inp-amount').value='';
-  document.getElementById('inp-note').value='';
+  if(!cat||!subcat||subcat==='__new__'||isNaN(amount)||amount<=0){alert('Please fill in category, subcategory and amount.');return;}
+  const btn=document.getElementById('btn-add');
+  btn.textContent='Saving...';btn.disabled=true;
+  try{
+    await post(EXP_API,{data:[{
+      id:String(Date.now()),cat,subcat,
+      desc:document.getElementById('inp-desc').value.trim(),
+      amount:String(amount),
+      date:document.getElementById('inp-date').value,
+      month:document.getElementById('inp-month').value,
+      year:document.getElementById('inp-year').value,
+      note:document.getElementById('inp-note').value.trim()
+    }]});
+    document.getElementById('inp-cat').value='';
+    const subEl=document.getElementById('inp-subcat');subEl.innerHTML='<option value="">—</option>';subEl.disabled=true;
+    document.getElementById('new-sub-wrap').style.display='none';
+    document.getElementById('inp-desc').value='';
+    document.getElementById('inp-amount').value='';
+    document.getElementById('inp-note').value='';
+    await loadEntries();
+  }catch(e){alert('Error saving. Please try again.');}
+  btn.textContent='＋ Add Expense';btn.disabled=false;
 }
 
-function deleteEntry(id){
-  if(!confirm('Να διαγραφεί η εγγραφή;'))return;
-  entries=entries.filter(x=>x.id!==id);save();populateYearDropdowns();render();
+async function deleteEntry(id){
+  if(!confirm('Delete this entry?'))return;
+  const el=document.querySelector(`[data-id="${id}"]`);
+  if(el)el.classList.add('loading-state');
+  try{
+    await del(API+'/id/'+id+'?sheet=Expenses');
+    await loadEntries();
+  }catch(e){alert('Error.');if(el)el.classList.remove('loading-state');}
 }
 
 function getFiltered(mId,yId,cId){
@@ -406,7 +459,7 @@ function getFiltered(mId,yId,cId){
   return entries.filter(e=>(!m||e.month===m)&&(!y||String(e.year)===String(y))&&(!c||e.cat===c));
 }
 
-function render(){
+function renderEntries(){
   populateCatDropdowns();
   const allTotal=entries.reduce((s,e)=>s+e.amount,0);
   document.getElementById('total-amount').textContent=fmt(allTotal);
@@ -415,16 +468,16 @@ function render(){
   document.getElementById('total-pill').textContent=curMonth+': '+fmt(monthTotal);
   const visible=getFiltered('flt-month','flt-year','flt-cat');
   const list=document.getElementById('list');
-  if(!visible.length){list.innerHTML='<div class="empty">Δεν υπάρχουν εγγραφές.</div>';return;}
+  if(!visible.length){list.innerHTML='<div class="empty">No entries yet.</div>';return;}
   list.innerHTML=visible.map(e=>{
     const title=e.desc||e.subcat;
     const meta=[e.date,e.month&&e.year?e.month+' '+e.year:(e.month||e.year),e.note].filter(Boolean).join(' · ');
     const col=catColorIdx(e.cat);
-    return`<div class="entry" style="border-left:2px solid ${col}">
+    return`<div class="entry" data-id="${e.id}" style="border-left:2px solid ${col}">
       <div class="entry-top"><span class="entry-name">${title}</span><span class="entry-amount">${fmt(e.amount)}</span></div>
       <div style="margin-bottom:5px"><span class="entry-pill" style="${pillStyle(e.cat)}">${e.cat} › ${e.subcat}</span></div>
       <div class="entry-meta">${meta||'—'}</div>
-      <div class="entry-actions"><button class="btn-sm del" onclick="deleteEntry(${e.id})">✕ Διαγραφή</button></div>
+      <div class="entry-actions"><button class="btn-sm del" onclick="deleteEntry('${e.id}')">✕ Delete</button></div>
     </div>`;
   }).join('');
 }
@@ -439,19 +492,17 @@ function renderReport(){
   visible.forEach(e=>{if(!byCat[e.cat])byCat[e.cat]=[];byCat[e.cat].push(e);});
   document.getElementById('r-cats').textContent=Object.keys(byCat).length;
   const sorted=Object.entries(byCat).sort((a,b)=>b[1].reduce((s,e)=>s+e.amount,0)-a[1].reduce((s,e)=>s+e.amount,0));
-
-  /* DONUT */
   const canvas=document.getElementById('donut-canvas');
   const ctx=canvas.getContext('2d');
   const cx=60,cy=60,r=54,ri=32;
   ctx.clearRect(0,0,120,120);
   if(sorted.length){
     let angle=-Math.PI/2;
-    sorted.forEach(([cat,ents],i)=>{
+    sorted.forEach(([cat,ents])=>{
       const amt=ents.reduce((s,e)=>s+e.amount,0);
       const slice=total>0?(amt/total)*2*Math.PI:0;
       ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,angle,angle+slice);ctx.closePath();
-      ctx.fillStyle=catColor(Object.keys(cats).indexOf(cat));ctx.fill();
+      ctx.fillStyle=catColorIdx(cat);ctx.fill();
       angle+=slice;
     });
     ctx.beginPath();ctx.arc(cx,cy,ri,0,2*Math.PI);ctx.fillStyle='#161616';ctx.fill();
@@ -460,28 +511,18 @@ function renderReport(){
   } else {
     ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.strokeStyle='#232323';ctx.lineWidth=22;ctx.stroke();
   }
-
-  document.getElementById('donut-legend').innerHTML=sorted.map(([cat,ents],i)=>{
+  document.getElementById('donut-legend').innerHTML=sorted.map(([cat,ents])=>{
     const amt=ents.reduce((s,e)=>s+e.amount,0);
     const pct=total>0?(amt/total*100):0;
-    const col=catColor(Object.keys(cats).indexOf(cat));
-    return`<div class="legend-item"><div class="legend-dot" style="background:${col}"></div><span class="legend-name">${cat}</span><span class="legend-pct">${pct.toFixed(1)}%</span></div>`;
+    return`<div class="legend-item"><div class="legend-dot" style="background:${catColorIdx(cat)}"></div><span class="legend-name">${cat}</span><span class="legend-pct">${pct.toFixed(1)}%</span></div>`;
   }).join('');
-
-  /* BAR */
   const maxAmt=sorted.length?sorted[0][1].reduce((s,e)=>s+e.amount,0):1;
-  document.getElementById('bar-chart').innerHTML=sorted.map(([cat,ents],i)=>{
+  document.getElementById('bar-chart').innerHTML=sorted.map(([cat,ents])=>{
     const amt=ents.reduce((s,e)=>s+e.amount,0);
     const pct=maxAmt>0?(amt/maxAmt*100):0;
-    const col=catColor(Object.keys(cats).indexOf(cat));
-    return`<div class="bar-item">
-      <div class="bar-label-row"><span class="bar-label">${cat}</span><span class="bar-val">${fmt(amt)}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%;background:${col}"></div></div>
-    </div>`;
+    return`<div class="bar-item"><div class="bar-label-row"><span class="bar-label">${cat}</span><span class="bar-val">${fmt(amt)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct.toFixed(1)}%;background:${catColorIdx(cat)}"></div></div></div>`;
   }).join('');
-
-  /* DETAIL */
-  if(!sorted.length){document.getElementById('report-list').innerHTML='<div class="empty">Δεν υπάρχουν εγγραφές.</div>';return;}
+  if(!sorted.length){document.getElementById('report-list').innerHTML='<div class="empty">No entries.</div>';return;}
   document.getElementById('report-list').innerHTML=sorted.map(([cat,ents])=>{
     const catTotal=ents.reduce((s,e)=>s+e.amount,0);
     const pct=total>0?catTotal/total*100:0;
@@ -490,33 +531,25 @@ function renderReport(){
     ents.forEach(e=>{if(!bySub[e.subcat])bySub[e.subcat]=[];bySub[e.subcat].push(e);});
     const subRows=Object.entries(bySub).sort((a,b)=>b[1].reduce((s,e)=>s+e.amount,0)-a[1].reduce((s,e)=>s+e.amount,0)).map(([sub,ses])=>{
       const subTotal=ses.reduce((s,e)=>s+e.amount,0);
-      const details=ses.map(e=>{
-        const lbl=[e.desc,e.date,e.note].filter(Boolean).join(' · ')||'—';
-        return`<div class="cat-row" style="padding-left:10px;font-size:11px;color:var(--text3)"><span>${lbl}</span><span class="row-amt">${fmt(e.amount)}</span></div>`;
-      }).join('');
+      const details=ses.map(e=>{const lbl=[e.desc,e.date,e.note].filter(Boolean).join(' · ')||'—';return`<div class="cat-row" style="padding-left:10px;font-size:11px;color:var(--text3)"><span>${lbl}</span><span class="row-amt">${fmt(e.amount)}</span></div>`;}).join('');
       return`<div class="cat-row" style="font-weight:500;color:var(--text2)"><span>${sub}</span><span class="row-amt" style="color:var(--text)">${fmt(subTotal)}</span></div>${details}`;
     }).join('');
-    return`<div class="cat-card" style="border-left-color:${col}">
-      <div class="cat-top"><span class="cat-name">${cat}</span><span class="cat-amount" style="color:${col}">${fmt(catTotal)}</span></div>
-      <div class="cat-sub">${pct.toFixed(1)}% του συνόλου · ${ents.length} εγγραφές</div>
-      <div class="cat-rows">${subRows}</div>
-    </div>`;
+    return`<div class="cat-card" style="border-left-color:${col}"><div class="cat-top"><span class="cat-name">${cat}</span><span class="cat-amount" style="color:${col}">${fmt(catTotal)}</span></div><div class="cat-sub">${pct.toFixed(1)}% of total · ${ents.length} entries</div><div class="cat-rows">${subRows}</div></div>`;
   }).join('');
 }
 
-/* CATS TAB */
 function renderCats(){
   document.getElementById('cats-list').innerHTML=Object.entries(cats).map(([cat,subs])=>`
     <div class="cat-manage-card">
       <div class="cat-manage-header" onclick="toggleCatBody('${esc(cat)}')">
         <span class="cat-manage-name" style="color:${catColorIdx(cat)}">${cat}</span>
-        <span class="cat-manage-count">${subs.length} υποκατ. ▾</span>
+        <span class="cat-manage-count">${subs.length} subcategories ▾</span>
       </div>
       <div class="cat-manage-body" id="cmb-${esc(cat)}">
         <div id="ren-cat-${esc(cat)}"></div>
         <div class="mgmt-actions">
-          <button class="btn-mgmt ren" onclick="startRenameCat('${esc(cat)}')">✏ Μετονομασία</button>
-          <button class="btn-mgmt del" onclick="deleteCat('${esc(cat)}')">✕ Διαγραφή κατ.</button>
+          <button class="btn-mgmt ren" onclick="startRenameCat('${esc(cat)}')">✏ Rename</button>
+          <button class="btn-mgmt del" onclick="deleteCat('${esc(cat)}')">✕ Delete</button>
         </div>
         ${subs.map(s=>`
           <div class="sub-row" id="subrow-${esc(cat)}-${esc(s)}">
@@ -527,7 +560,7 @@ function renderCats(){
             </div>
           </div>`).join('')}
         <div class="add-sub-row">
-          <input type="text" id="addsub-${esc(cat)}" placeholder="Νέα υποκατηγορία…" autocomplete="off"/>
+          <input type="text" id="addsub-${esc(cat)}" placeholder="New subcategory..." autocomplete="off"/>
           <button class="btn-xs" onclick="addSubFromTab('${esc(cat)}')">＋</button>
         </div>
       </div>
@@ -537,37 +570,45 @@ function renderCats(){
 function toggleCatBody(catEsc){const b=document.getElementById('cmb-'+catEsc);if(b)b.classList.toggle('open');}
 function reopen(catEsc){setTimeout(()=>{const b=document.getElementById('cmb-'+catEsc);if(b)b.classList.add('open');},10);}
 
-function addCategory(){
+async function addCategory(){
   const name=document.getElementById('new-cat-inp').value.trim();
-  if(!name)return;if(cats[name]){alert('Υπάρχει ήδη.');return;}
-  cats[name]=['Άλλο'];saveCats();populateCatDropdowns();renderCats();
+  if(!name)return;
+  if(cats[name]){alert('Already exists.');return;}
+  cats[name]=['Other'];
+  await post(CAT_API,{data:[{cat:name,subcat:'Other'}]});
+  populateCatDropdowns();renderCats();
   document.getElementById('new-cat-inp').value='';
 }
 
-function deleteCat(catEsc){
+async function deleteCat(catEsc){
   const realCat=Object.keys(cats).find(k=>esc(k)===catEsc);if(!realCat)return;
   const count=entries.filter(e=>e.cat===realCat).length;
-  if(!confirm(`Διαγραφή κατηγορίας "${realCat}";${count?' Υπάρχουν '+count+' εγγραφές.':''}`))return;
-  delete cats[realCat];saveCats();populateCatDropdowns();renderCats();
+  if(!confirm(`Delete category "${realCat}"?${count?' It has '+count+' entries.':''}`))return;
+  delete cats[realCat];
+  try{ await del(API+'/cat/'+encodeURIComponent(realCat)+'?sheet=Categories'); }catch(e){}
+  populateCatDropdowns();renderCats();
 }
 
-function addSubFromTab(catEsc){
+async function addSubFromTab(catEsc){
   const realCat=Object.keys(cats).find(k=>esc(k)===catEsc);if(!realCat)return;
   const inp=document.getElementById('addsub-'+catEsc);
   const name=inp.value.trim();if(!name)return;
-  if(cats[realCat].includes(name)){alert('Υπάρχει ήδη.');return;}
-  const idx=cats[realCat].indexOf('Άλλο');if(idx>=0)cats[realCat].splice(idx,0,name);else cats[realCat].push(name);
-  saveCats();inp.value='';renderCats();reopen(catEsc);
+  if(cats[realCat].includes(name)){alert('Already exists.');return;}
+  const idx=cats[realCat].indexOf('Other');
+  if(idx>=0)cats[realCat].splice(idx,0,name);else cats[realCat].push(name);
+  await post(CAT_API,{data:[{cat:realCat,subcat:name}]});
+  inp.value='';renderCats();reopen(catEsc);
 }
 
-function deleteSub(catEsc,subEsc){
+async function deleteSub(catEsc,subEsc){
   const realCat=Object.keys(cats).find(k=>esc(k)===catEsc);if(!realCat)return;
   const realSub=cats[realCat].find(s=>esc(s)===subEsc);if(!realSub)return;
-  if(realSub==='Άλλο'){alert('"Άλλο" δεν μπορεί να διαγραφεί.');return;}
+  if(realSub==='Other'){alert('"Other" cannot be deleted.');return;}
   const count=entries.filter(e=>e.cat===realCat&&e.subcat===realSub).length;
-  if(!confirm(`Διαγραφή "${realSub}";${count?' Υπάρχουν '+count+' εγγραφές.':''}`))return;
+  if(!confirm(`Delete "${realSub}"?${count?' It has '+count+' entries.':''}`))return;
   cats[realCat]=cats[realCat].filter(s=>s!==realSub);
-  saveCats();renderCats();reopen(catEsc);
+  try{ await del(API+'/subcat/'+encodeURIComponent(realSub)+'?sheet=Categories'); }catch(e){}
+  renderCats();reopen(catEsc);
 }
 
 function startRenameCat(catEsc){
@@ -575,54 +616,51 @@ function startRenameCat(catEsc){
   const el=document.getElementById('ren-cat-'+catEsc);
   el.innerHTML=`<input class="rename-input" id="rci-${catEsc}" value="${realCat}"/>
     <div class="rename-actions">
-      <button class="btn-save" onclick="doRenameCat('${catEsc}')">✓ Αποθήκευση</button>
-      <button class="btn-cancel2" onclick="renderCats();reopen('${catEsc}')">Ακύρωση</button>
+      <button class="btn-save" onclick="doRenameCat('${catEsc}')">✓ Save</button>
+      <button class="btn-cancel2" onclick="renderCats();reopen('${catEsc}')">Cancel</button>
     </div>`;
   setTimeout(()=>document.getElementById('rci-'+catEsc)?.focus(),50);
 }
 
-function doRenameCat(catEsc){
+async function doRenameCat(catEsc){
   const realCat=Object.keys(cats).find(k=>esc(k)===catEsc);if(!realCat)return;
   const newName=document.getElementById('rci-'+catEsc)?.value.trim();
   if(!newName||newName===realCat){renderCats();return;}
-  if(cats[newName]){alert('Υπάρχει ήδη.');return;}
+  if(cats[newName]){alert('Already exists.');return;}
   const count=entries.filter(e=>e.cat===realCat).length;
-  if(!confirm(`Μετονομασία "${realCat}" → "${newName}";${count?' Θα ενημερωθούν '+count+' εγγραφές.':''}`))return;
+  if(!confirm(`Rename "${realCat}" → "${newName}"?${count?' '+count+' entries will be updated.':''}`))return;
   const newCats={};Object.entries(cats).forEach(([k,v])=>{newCats[k===realCat?newName:k]=v;});cats=newCats;
-  entries.forEach(e=>{if(e.cat===realCat)e.cat=newName;});
-  save();saveCats();populateCatDropdowns();renderCats();
-  reopen(esc(newName));
+  try{ await patch(API+'/cat/'+encodeURIComponent(realCat)+'?sheet=Categories',{data:{cat:newName}}); }catch(e){}
+  populateCatDropdowns();renderCats();reopen(esc(newName));
 }
 
 function startRenameSub(catEsc,subEsc){
   const realCat=Object.keys(cats).find(k=>esc(k)===catEsc);if(!realCat)return;
   const realSub=cats[realCat].find(s=>esc(s)===subEsc);if(!realSub)return;
-  if(realSub==='Άλλο'){alert('"Άλλο" δεν μπορεί να μετονομαστεί.');return;}
+  if(realSub==='Other'){alert('"Other" cannot be renamed.');return;}
   const el=document.getElementById('ren-sub-'+catEsc+'-'+subEsc);
   el.innerHTML=`<input class="rename-input" id="rsi-${catEsc}-${subEsc}" value="${realSub}"/>
     <div class="rename-actions">
-      <button class="btn-save" onclick="doRenameSub('${catEsc}','${subEsc}')">✓ Αποθήκευση</button>
-      <button class="btn-cancel2" onclick="renderCats();reopen('${catEsc}')">Ακύρωση</button>
+      <button class="btn-save" onclick="doRenameSub('${catEsc}','${subEsc}')">✓ Save</button>
+      <button class="btn-cancel2" onclick="renderCats();reopen('${catEsc}')">Cancel</button>
     </div>`;
   setTimeout(()=>document.getElementById('rsi-'+catEsc+'-'+subEsc)?.focus(),50);
 }
 
-function doRenameSub(catEsc,subEsc){
+async function doRenameSub(catEsc,subEsc){
   const realCat=Object.keys(cats).find(k=>esc(k)===catEsc);if(!realCat)return;
   const realSub=cats[realCat].find(s=>esc(s)===subEsc);if(!realSub)return;
   const newName=document.getElementById('rsi-'+catEsc+'-'+subEsc)?.value.trim();
   if(!newName||newName===realSub){renderCats();return;}
-  if(cats[realCat].includes(newName)){alert('Υπάρχει ήδη.');return;}
+  if(cats[realCat].includes(newName)){alert('Already exists.');return;}
   const count=entries.filter(e=>e.cat===realCat&&e.subcat===realSub).length;
-  if(!confirm(`Μετονομασία "${realSub}" → "${newName}";${count?' Θα ενημερωθούν '+count+' εγγραφές.':''}`))return;
+  if(!confirm(`Rename "${realSub}" → "${newName}"?${count?' '+count+' entries will be updated.':''}`))return;
   cats[realCat]=cats[realCat].map(s=>s===realSub?newName:s);
-  entries.forEach(e=>{if(e.cat===realCat&&e.subcat===realSub)e.subcat=newName;});
-  save();saveCats();renderCats();reopen(catEsc);
+  try{ await patch(API+'/subcat/'+encodeURIComponent(realSub)+'?sheet=Categories',{data:{subcat:newName}}); }catch(e){}
+  renderCats();reopen(catEsc);
 }
 
-populateCatDropdowns();
-populateYearDropdowns();
-render();
+init();
 </script>
 </body>
 </html>
