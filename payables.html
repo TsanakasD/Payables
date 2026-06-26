@@ -176,33 +176,27 @@
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbz2f3C6aMME_KwUW1rHFdIN-cp2WtBf7pP0w3BqAz1K2m3D1yoh1UWVIAlKZ9Dmj--HXA/exec';
+// SheetDB API — works perfectly on Safari with full CORS support
+const API = 'https://sheetdb.io/api/v1/abtacexnru2a8';
+// Names stored locally + in sheet "Names"
+const NAMES_API = API + '?sheet=Names';
 
 let entries = [], names = [], pieChartInst = null, barChartInst = null, editingOldName = null;
 const COLORS = ['#e0c97f','#e05c5c','#5cb87a','#5b9bd5','#d48fd4','#e08c5c','#5ccfcf','#a0a0ff','#f0a0a0','#a0f0c0'];
 
-// JSONP — the only reliable cross-origin method on Safari/iOS
-let _cbCounter = 0;
-function jsonp(params) {
-  return new Promise((resolve, reject) => {
-    const cbName = '_cb' + (++_cbCounter);
-    const timeout = setTimeout(() => {
-      delete window[cbName];
-      reject(new Error('Timeout'));
-    }, 10000);
-    window[cbName] = (data) => {
-      clearTimeout(timeout);
-      delete window[cbName];
-      resolve(data);
-    };
-    params.callback = cbName;
-    const url = API + '?' + new URLSearchParams(params);
-    const s = document.createElement('script');
-    s.src = url;
-    s.onerror = () => { clearTimeout(timeout); delete window[cbName]; reject(new Error('Script error')); };
-    document.head.appendChild(s);
-    setTimeout(() => { try { document.head.removeChild(s); } catch(e){} }, 15000);
-  });
+const h = {'Content-Type':'application/json'};
+
+async function get(url) {
+  const r = await fetch(url); return r.json();
+}
+async function post(url, body) {
+  const r = await fetch(url, {method:'POST', headers:h, body:JSON.stringify(body)}); return r.json();
+}
+async function patch(url, body) {
+  const r = await fetch(url, {method:'PATCH', headers:h, body:JSON.stringify(body)}); return r.json();
+}
+async function del(url) {
+  const r = await fetch(url, {method:'DELETE', headers:h}); return r.json();
 }
 
 const now = new Date();
@@ -212,32 +206,33 @@ document.getElementById('inp-month').selectedIndex = now.getMonth() + 1;
 
 async function init() {
   try {
-    await loadNames();
-    await loadEntries();
+    await Promise.all([loadNames(), loadEntries()]);
   } catch(e) {
-    document.getElementById('list').innerHTML = '<div class="error-msg">⚠️ Could not connect. Check your internet connection and try again.</div>';
-  }
-}
-
-async function loadNames() {
-  try {
-    const data = await jsonp({action:'getNames'});
-    names = data.names || [];
-    renderNameDropdown();
-    renderNamesList();
-  } catch(e) {
-    names = [];
-    renderNameDropdown();
+    document.getElementById('list').innerHTML = '<div class="error-msg">⚠️ Could not connect. Check your internet connection.</div>';
   }
 }
 
 async function loadEntries() {
   try {
-    const data = await jsonp({action:'getAll'});
-    entries = (data.rows || []).map(r => ({...r, paid: r.paid === 'true' || r.paid === true}));
+    const data = await get(API + '?sheet=Payables');
+    entries = (Array.isArray(data) ? data : []).map(r => ({...r, paid: r.paid === 'true' || r.paid === true}));
+    // Sort newest first by id
+    entries.sort((a,b) => Number(b.id) - Number(a.id));
     renderEntries();
   } catch(e) {
     document.getElementById('list').innerHTML = '<div class="error-msg">⚠️ Could not load entries.</div>';
+  }
+}
+
+async function loadNames() {
+  try {
+    const data = await get(NAMES_API);
+    names = (Array.isArray(data) ? data : []).map(r => r.name).filter(Boolean);
+    renderNameDropdown();
+    renderNamesList();
+  } catch(e) {
+    names = [];
+    renderNameDropdown();
   }
 }
 
@@ -271,12 +266,16 @@ async function addEntry() {
   const btn = document.getElementById('btn-add');
   btn.textContent = 'Saving...'; btn.disabled = true;
   try {
-    await jsonp({
-      action:'add', name, amount,
-      date: document.getElementById('inp-date').value,
-      month: document.getElementById('inp-month').value,
-      year: document.getElementById('inp-year').value,
-      note: document.getElementById('inp-note').value.trim()
+    await post(API + '?sheet=Payables', {
+      data: [{
+        id: String(Date.now()),
+        name, amount: String(amount),
+        date: document.getElementById('inp-date').value,
+        month: document.getElementById('inp-month').value,
+        year: document.getElementById('inp-year').value,
+        note: document.getElementById('inp-note').value.trim(),
+        paid: 'false'
+      }]
     });
     document.getElementById('inp-amount').value = '';
     document.getElementById('inp-note').value = '';
@@ -286,10 +285,13 @@ async function addEntry() {
 }
 
 async function togglePaid(id) {
+  const entry = entries.find(e => String(e.id) === String(id));
+  if (!entry) return;
   const el = document.querySelector(`[data-id="${id}"]`);
   if (el) el.classList.add('loading-state');
   try {
-    await jsonp({action:'togglePaid', id: String(id)});
+    const newPaid = entry.paid ? 'false' : 'true';
+    await patch(API + '/id/' + id + '?sheet=Payables', {data: {paid: newPaid}});
     await loadEntries();
   } catch(e) { alert('Error.'); if(el) el.classList.remove('loading-state'); }
 }
@@ -299,7 +301,7 @@ async function deleteEntry(id) {
   const el = document.querySelector(`[data-id="${id}"]`);
   if (el) el.classList.add('loading-state');
   try {
-    await jsonp({action:'delete', id: String(id)});
+    await del(API + '/id/' + id + '?sheet=Payables');
     await loadEntries();
   } catch(e) { alert('Error.'); if(el) el.classList.remove('loading-state'); }
 }
@@ -362,20 +364,31 @@ async function addName() {
   const name = document.getElementById('inp-new-name').value.trim();
   if (!name) { alert('Please enter a name.'); return; }
   if (names.includes(name)) { alert('Name already exists.'); return; }
-  try { await jsonp({action:'addName',name}); document.getElementById('inp-new-name').value=''; await loadNames(); } catch(e) { alert('Error.'); }
+  try {
+    await post(NAMES_API, {data: [{name}]});
+    document.getElementById('inp-new-name').value = '';
+    await loadNames();
+  } catch(e) { alert('Error.'); }
 }
 
 async function deleteName(name) {
   if (!confirm(`Delete "${name}"?`)) return;
-  try { await jsonp({action:'deleteName',name}); await loadNames(); } catch(e) { alert('Error.'); }
+  try {
+    await del(API + '/name/' + encodeURIComponent(name) + '?sheet=Names');
+    await loadNames();
+  } catch(e) { alert('Error.'); }
 }
 
 function openEditModal(name) { editingOldName=name; document.getElementById('edit-name-input').value=name; document.getElementById('edit-modal').classList.add('show'); }
 function closeModal() { document.getElementById('edit-modal').classList.remove('show'); editingOldName=null; }
 async function confirmEdit() {
-  const newName=document.getElementById('edit-name-input').value.trim();
-  if (!newName||!editingOldName) return;
-  try { await jsonp({action:'editName',oldName:editingOldName,newName}); closeModal(); await loadNames(); } catch(e) { alert('Error.'); }
+  const newName = document.getElementById('edit-name-input').value.trim();
+  if (!newName || !editingOldName) return;
+  try {
+    await patch(API + '/name/' + encodeURIComponent(editingOldName) + '?sheet=Names', {data: {name: newName}});
+    closeModal();
+    await loadNames();
+  } catch(e) { alert('Error.'); }
 }
 
 init();
