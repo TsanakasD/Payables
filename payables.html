@@ -11,7 +11,7 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg:#0f0f0f; --bg2:#1a1a1a; --bg3:#242424; --bg4:#2e2e2e;
+    --bg:#0f0f0f; --bg2:#1a1a1a; --bg3:#242424;
     --gold:#e0c97f; --gold2:#c9a84c;
     --text:#f0f0f0; --text2:#aaaaaa; --text3:#666666;
     --border:#2a2a2a; --border2:#3a3a3a;
@@ -25,7 +25,7 @@
   .app-title { font-size:24px; font-weight:700; color:var(--gold); letter-spacing:-0.5px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; }
   .total-pill { font-size:13px; background:var(--danger-bg); color:var(--danger); border:0.5px solid #4a2020; padding:4px 12px; border-radius:20px; font-weight:600; }
   .tabs { display:flex; }
-  .tab { flex:1; padding:10px 8px; font-size:13px; font-weight:500; border:none; background:transparent; color:var(--text3); cursor:pointer; border-bottom:2px solid transparent; transition:color 0.2s; }
+  .tab { flex:1; padding:10px 8px; font-size:13px; font-weight:500; border:none; background:transparent; color:var(--text3); cursor:pointer; border-bottom:2px solid transparent; }
   .tab.active { color:var(--gold); border-bottom:2px solid var(--gold); }
   .page { display:none; padding:16px; }
   .page.active { display:block; }
@@ -38,7 +38,7 @@
   input:focus, select:focus, textarea:focus { border-color:var(--gold2); }
   textarea { resize:none; height:50px; }
   select option { background:var(--bg3); color:var(--text); }
-  .btn-add { width:100%; margin-top:10px; font-size:15px; font-weight:700; background:var(--gold2); color:#0f0f0f; border:none; padding:12px; border-radius:var(--radius-sm); cursor:pointer; transition:opacity 0.15s; }
+  .btn-add { width:100%; margin-top:10px; font-size:15px; font-weight:700; background:var(--gold2); color:#0f0f0f; border:none; padding:12px; border-radius:var(--radius-sm); cursor:pointer; }
   .btn-add:active { opacity:0.8; }
   .btn-add:disabled { opacity:0.5; cursor:not-allowed; }
   .loading { text-align:center; color:var(--text3); font-size:13px; padding:2rem 0; }
@@ -54,13 +54,13 @@
   .paid-badge { display:inline-block; font-size:10px; background:var(--success-bg); color:var(--success); border:0.5px solid #2a5a3a; padding:1px 7px; border-radius:20px; margin-left:6px; vertical-align:middle; font-weight:500; }
   .entry-meta { font-size:12px; color:var(--text3); margin-bottom:10px; }
   .entry-actions { display:flex; gap:7px; }
-  .btn-sm { font-size:12px; padding:6px 12px; border-radius:var(--radius-sm); cursor:pointer; font-weight:500; background:transparent; transition:opacity 0.15s; }
-  .btn-sm:active { opacity:0.7; }
+  .btn-sm { font-size:12px; padding:6px 12px; border-radius:var(--radius-sm); cursor:pointer; font-weight:500; background:transparent; }
   .btn-paid { color:var(--success); border:0.5px solid #2a5a3a; background:var(--success-bg); }
   .btn-unpaid { color:var(--text2); border:0.5px solid var(--border2); }
   .btn-del { color:var(--danger); border:0.5px solid #4a2020; background:var(--danger-bg); }
   .btn-edit { font-size:12px; padding:5px 10px; border-radius:var(--radius-sm); cursor:pointer; color:var(--gold2); border:0.5px solid var(--gold2); background:transparent; font-weight:500; }
   .empty { text-align:center; color:var(--text3); font-size:14px; padding:3rem 0; }
+  .error-msg { text-align:center; color:var(--danger); font-size:13px; padding:1rem; }
   .report-summary { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
   .stat-card { background:var(--bg2); border:0.5px solid var(--border2); border-radius:var(--radius); padding:13px 14px; }
   .stat-label { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:0.6px; font-weight:600; margin-bottom:5px; }
@@ -96,7 +96,6 @@
   .modal-actions { display:flex; gap:8px; }
   .btn-confirm { flex:1; padding:10px; border-radius:var(--radius-sm); background:var(--gold2); color:#0f0f0f; border:none; font-weight:700; cursor:pointer; font-size:14px; }
   .btn-cancel { flex:1; padding:10px; border-radius:var(--radius-sm); background:transparent; color:var(--text2); border:0.5px solid var(--border2); cursor:pointer; font-size:14px; }
-  .error-msg { text-align:center; color:var(--danger); font-size:13px; padding:1rem 0; }
 </style>
 </head>
 <body>
@@ -123,10 +122,7 @@
         </div>
       </div>
       <div class="form-row three">
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="inp-date"/>
-        </div>
+        <div class="form-group"><label>Date</label><input type="date" id="inp-date"/></div>
         <div class="form-group">
           <label>Month</label>
           <select id="inp-month">
@@ -137,15 +133,9 @@
             <option>October</option><option>November</option><option>December</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Year</label>
-          <input type="number" id="inp-year" placeholder="2026" min="2020" max="2099" inputmode="numeric"/>
-        </div>
+        <div class="form-group"><label>Year</label><input type="number" id="inp-year" placeholder="2026" min="2020" max="2099" inputmode="numeric"/></div>
       </div>
-      <div class="form-group">
-        <label>Note</label>
-        <textarea id="inp-note" placeholder="optional..."></textarea>
-      </div>
+      <div class="form-group"><label>Note</label><textarea id="inp-note" placeholder="optional..."></textarea></div>
       <button class="btn-add" id="btn-add" onclick="addEntry()">+ Add Entry</button>
     </div>
     <div id="list"><div class="loading"><div class="spinner"></div>Loading entries...</div></div>
@@ -168,9 +158,7 @@
     <div class="names-list" id="names-list"><div class="loading"><div class="spinner"></div>Loading...</div></div>
     <div class="add-name-form">
       <div class="section-title">Add new person</div>
-      <div class="form-group" style="margin-bottom:10px">
-        <input type="text" id="inp-new-name" placeholder="e.g. Kostas"/>
-      </div>
+      <div class="form-group" style="margin-bottom:10px"><input type="text" id="inp-new-name" placeholder="e.g. Kostas"/></div>
       <button class="btn-add" onclick="addName()">+ Add</button>
     </div>
   </div>
@@ -193,35 +181,27 @@ const API = 'https://script.google.com/macros/s/AKfycbz2f3C6aMME_KwUW1rHFdIN-cp2
 let entries = [], names = [], pieChartInst = null, barChartInst = null, editingOldName = null;
 const COLORS = ['#e0c97f','#e05c5c','#5cb87a','#5b9bd5','#d48fd4','#e08c5c','#5ccfcf','#a0a0ff','#f0a0a0','#a0f0c0'];
 
-// Use GET with JSONP-style via script tag to avoid CORS on Safari
-function apiGet(params) {
+// JSONP — the only reliable cross-origin method on Safari/iOS
+let _cbCounter = 0;
+function jsonp(params) {
   return new Promise((resolve, reject) => {
+    const cbName = '_cb' + (++_cbCounter);
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      reject(new Error('Timeout'));
+    }, 10000);
+    window[cbName] = (data) => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      resolve(data);
+    };
+    params.callback = cbName;
     const url = API + '?' + new URLSearchParams(params);
-    fetch(url, { method: 'GET', mode: 'cors' })
-      .then(r => r.json())
-      .then(resolve)
-      .catch(reject);
-  });
-}
-
-function apiAction(params) {
-  return new Promise((resolve, reject) => {
-    const url = API + '?' + new URLSearchParams(params);
-    fetch(url, { method: 'GET', mode: 'no-cors' })
-      .then(() => resolve({ success: true }))
-      .catch(reject);
-  });
-}
-
-// All writes go via GET params now (no-cors workaround)
-async function apiWrite(params) {
-  const url = API + '?' + new URLSearchParams(params);
-  // Use image trick for no-cors write
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = img.onerror = () => resolve({ success: true });
-    img.src = url;
-    setTimeout(() => resolve({ success: true }), 2000);
+    const s = document.createElement('script');
+    s.src = url;
+    s.onerror = () => { clearTimeout(timeout); delete window[cbName]; reject(new Error('Script error')); };
+    document.head.appendChild(s);
+    setTimeout(() => { try { document.head.removeChild(s); } catch(e){} }, 15000);
   });
 }
 
@@ -235,13 +215,13 @@ async function init() {
     await loadNames();
     await loadEntries();
   } catch(e) {
-    document.getElementById('list').innerHTML = '<div class="error-msg">⚠️ Could not connect to server.<br>Make sure you are connected to the internet.</div>';
+    document.getElementById('list').innerHTML = '<div class="error-msg">⚠️ Could not connect. Check your internet connection and try again.</div>';
   }
 }
 
 async function loadNames() {
   try {
-    const data = await apiGet({ action: 'getNames' });
+    const data = await jsonp({action:'getNames'});
     names = data.names || [];
     renderNameDropdown();
     renderNamesList();
@@ -253,15 +233,15 @@ async function loadNames() {
 
 async function loadEntries() {
   try {
-    const data = await apiGet({ action: 'getAll' });
-    entries = (data.rows || []).map(r => ({ ...r, paid: r.paid === 'true' || r.paid === true }));
+    const data = await jsonp({action:'getAll'});
+    entries = (data.rows || []).map(r => ({...r, paid: r.paid === 'true' || r.paid === true}));
     renderEntries();
   } catch(e) {
     document.getElementById('list').innerHTML = '<div class="error-msg">⚠️ Could not load entries.</div>';
   }
 }
 
-function fmt(n) { return '€' + parseFloat(n).toFixed(2); }
+function fmt(n) { return '€' + parseFloat(n||0).toFixed(2); }
 
 function renderNameDropdown() {
   const sel = document.getElementById('inp-name');
@@ -291,8 +271,8 @@ async function addEntry() {
   const btn = document.getElementById('btn-add');
   btn.textContent = 'Saving...'; btn.disabled = true;
   try {
-    await apiGet({
-      action: 'add', name, amount,
+    await jsonp({
+      action:'add', name, amount,
       date: document.getElementById('inp-date').value,
       month: document.getElementById('inp-month').value,
       year: document.getElementById('inp-year').value,
@@ -309,7 +289,7 @@ async function togglePaid(id) {
   const el = document.querySelector(`[data-id="${id}"]`);
   if (el) el.classList.add('loading-state');
   try {
-    await apiGet({ action: 'togglePaid', id: String(id) });
+    await jsonp({action:'togglePaid', id: String(id)});
     await loadEntries();
   } catch(e) { alert('Error.'); if(el) el.classList.remove('loading-state'); }
 }
@@ -319,13 +299,13 @@ async function deleteEntry(id) {
   const el = document.querySelector(`[data-id="${id}"]`);
   if (el) el.classList.add('loading-state');
   try {
-    await apiGet({ action: 'delete', id: String(id) });
+    await jsonp({action:'delete', id: String(id)});
     await loadEntries();
   } catch(e) { alert('Error.'); if(el) el.classList.remove('loading-state'); }
 }
 
 function renderEntries() {
-  const total = entries.filter(e=>!e.paid).reduce((s,e)=>s+parseFloat(e.amount),0);
+  const total = entries.filter(e=>!e.paid).reduce((s,e)=>s+parseFloat(e.amount||0),0);
   document.getElementById('total-badge').textContent = fmt(total);
   const list = document.getElementById('list');
   if (!entries.length) { list.innerHTML = '<div class="empty">No entries yet.</div>'; return; }
@@ -348,13 +328,13 @@ function renderEntries() {
 function renderReport() {
   const pending = entries.filter(e=>!e.paid);
   const paid = entries.filter(e=>e.paid);
-  document.getElementById('r-total').textContent = fmt(pending.reduce((s,e)=>s+parseFloat(e.amount),0));
-  document.getElementById('r-paid').textContent = fmt(paid.reduce((s,e)=>s+parseFloat(e.amount),0));
+  document.getElementById('r-total').textContent = fmt(pending.reduce((s,e)=>s+parseFloat(e.amount||0),0));
+  document.getElementById('r-paid').textContent = fmt(paid.reduce((s,e)=>s+parseFloat(e.amount||0),0));
   document.getElementById('r-count').textContent = entries.length;
   const byName = {};
   entries.forEach(e => { if(!byName[e.name]) byName[e.name]=[]; byName[e.name].push(e); });
   document.getElementById('r-people').textContent = Object.keys(byName).filter(n=>byName[n].some(e=>!e.paid)).length;
-  const sorted = Object.entries(byName).map(([name,ents])=>({name,ents,openTotal:ents.filter(e=>!e.paid).reduce((s,e)=>s+parseFloat(e.amount),0)})).filter(x=>x.openTotal>0).sort((a,b)=>b.openTotal-a.openTotal);
+  const sorted = Object.entries(byName).map(([name,ents])=>({name,ents,openTotal:ents.filter(e=>!e.paid).reduce((s,e)=>s+parseFloat(e.amount||0),0)})).filter(x=>x.openTotal>0).sort((a,b)=>b.openTotal-a.openTotal);
   if (pieChartInst) pieChartInst.destroy();
   if (sorted.length) {
     pieChartInst = new Chart(document.getElementById('pieChart').getContext('2d'),{type:'doughnut',data:{labels:sorted.map(x=>x.name),datasets:[{data:sorted.map(x=>x.openTotal),backgroundColor:sorted.map((_,i)=>COLORS[i%COLORS.length]),borderColor:'#1a1a1a',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#aaaaaa',font:{size:12},padding:12}},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${fmt(ctx.raw)}`}}}}});
@@ -363,9 +343,9 @@ function renderReport() {
   if (sorted.length) {
     barChartInst = new Chart(document.getElementById('barChart').getContext('2d'),{type:'bar',data:{labels:sorted.map(x=>x.name),datasets:[{label:'Outstanding (€)',data:sorted.map(x=>x.openTotal),backgroundColor:sorted.map((_,i)=>COLORS[i%COLORS.length]+'99'),borderColor:sorted.map((_,i)=>COLORS[i%COLORS.length]),borderWidth:1,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#aaaaaa'},grid:{color:'#2a2a2a'}},y:{ticks:{color:'#aaaaaa',callback:v=>'€'+v},grid:{color:'#2a2a2a'}}}}});
   }
-  const allByName = Object.entries(byName).sort((a,b)=>{const at=a[1].filter(e=>!e.paid).reduce((s,e)=>s+parseFloat(e.amount),0);const bt=b[1].filter(e=>!e.paid).reduce((s,e)=>s+parseFloat(e.amount),0);return bt-at;});
+  const allByName = Object.entries(byName).sort((a,b)=>{const at=a[1].filter(e=>!e.paid).reduce((s,e)=>s+parseFloat(e.amount||0),0);const bt=b[1].filter(e=>!e.paid).reduce((s,e)=>s+parseFloat(e.amount||0),0);return bt-at;});
   document.getElementById('report-list').innerHTML = allByName.map(([name,ents])=>{
-    const openTotal=ents.filter(e=>!e.paid).reduce((s,e)=>s+parseFloat(e.amount),0);
+    const openTotal=ents.filter(e=>!e.paid).reduce((s,e)=>s+parseFloat(e.amount||0),0);
     const openCount=ents.filter(e=>!e.paid).length;
     const paidCount=ents.filter(e=>e.paid).length;
     return `<div class="person-card"><div class="person-top"><span class="person-name">${name}</span><span class="person-total${openTotal===0?' zero':''}">${fmt(openTotal)}</span></div><div class="person-detail">${openCount} open${paidCount>0?' · '+paidCount+' settled':''}</div><div class="person-rows">${ents.map(e=>`<div class="person-row${e.paid?' paid-row':''}"><span>${[e.date,e.note].filter(Boolean).join(' · ')||'—'}</span><span class="row-amt">${fmt(e.amount)}</span></div>`).join('')}</div></div>`;
@@ -382,12 +362,12 @@ async function addName() {
   const name = document.getElementById('inp-new-name').value.trim();
   if (!name) { alert('Please enter a name.'); return; }
   if (names.includes(name)) { alert('Name already exists.'); return; }
-  try { await apiGet({action:'addName',name}); document.getElementById('inp-new-name').value=''; await loadNames(); } catch(e) { alert('Error.'); }
+  try { await jsonp({action:'addName',name}); document.getElementById('inp-new-name').value=''; await loadNames(); } catch(e) { alert('Error.'); }
 }
 
 async function deleteName(name) {
   if (!confirm(`Delete "${name}"?`)) return;
-  try { await apiGet({action:'deleteName',name}); await loadNames(); } catch(e) { alert('Error.'); }
+  try { await jsonp({action:'deleteName',name}); await loadNames(); } catch(e) { alert('Error.'); }
 }
 
 function openEditModal(name) { editingOldName=name; document.getElementById('edit-name-input').value=name; document.getElementById('edit-modal').classList.add('show'); }
@@ -395,7 +375,7 @@ function closeModal() { document.getElementById('edit-modal').classList.remove('
 async function confirmEdit() {
   const newName=document.getElementById('edit-name-input').value.trim();
   if (!newName||!editingOldName) return;
-  try { await apiGet({action:'editName',oldName:editingOldName,newName}); closeModal(); await loadNames(); } catch(e) { alert('Error.'); }
+  try { await jsonp({action:'editName',oldName:editingOldName,newName}); closeModal(); await loadNames(); } catch(e) { alert('Error.'); }
 }
 
 init();
