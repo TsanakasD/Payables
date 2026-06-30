@@ -193,7 +193,9 @@ async function post(url, body) {
   const r = await fetch(url, {method:'POST', headers:h, body:JSON.stringify(body)}); return r.json();
 }
 async function patch(url, body) {
-  const r = await fetch(url, {method:'PATCH', headers:h, body:JSON.stringify(body)}); return r.json();
+  const r = await fetch(url, {method:'PATCH', headers:h, body:JSON.stringify(body)});
+  const text = await r.text();
+  try { return JSON.parse(text); } catch(e) { return {success: r.ok, raw: text}; }
 }
 async function del(url) {
   const r = await fetch(url, {method:'DELETE', headers:h}); return r.json();
@@ -291,9 +293,10 @@ async function togglePaid(id) {
   if (el) el.classList.add('loading-state');
   try {
     const newPaid = entry.paid ? 'false' : 'true';
-    await patch(API + '/id/' + id + '?sheet=Payables', {data: {paid: newPaid}});
+    const res = await patch(API + '/id/' + id + '?sheet=Payables', {data: {paid: newPaid}});
+    if (res && res.error) { alert('Server error: ' + res.error); }
     await loadEntries();
-  } catch(e) { alert('Error.'); if(el) el.classList.remove('loading-state'); }
+  } catch(e) { alert('Error: ' + e.message); if(el) el.classList.remove('loading-state'); }
 }
 
 async function deleteEntry(id) {
@@ -393,5 +396,6 @@ async function confirmEdit() {
 
 init();
 </script>
+<div style="text-align:center;padding:20px 0 10px;font-size:11px;color:#8a7a4a;letter-spacing:0.5px;">Powered by Dimitrios Tsanakas</div>
 </body>
 </html>
