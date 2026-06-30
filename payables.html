@@ -293,8 +293,9 @@ async function togglePaid(id) {
   if (el) el.classList.add('loading-state');
   try {
     const newPaid = entry.paid ? 'false' : 'true';
-    const res = await patch(API + '/id/' + id + '?sheet=Payables', {data: {paid: newPaid}});
-    if (res && res.error) { alert('Server error: ' + res.error); }
+    const url = API + '/id/' + id + '?sheet=Payables';
+    const res = await patch(url, {data: {paid: newPaid}});
+    alert('DEBUG → URL: ' + url + ' | Response: ' + JSON.stringify(res));
     await loadEntries();
   } catch(e) { alert('Error: ' + e.message); if(el) el.classList.remove('loading-state'); }
 }
